@@ -25,6 +25,7 @@ interface AppContextType {
   addPet: (pet: Pet) => void;
   updatePet: (pet: Pet) => void;
   addAppointment: (appt: Appointment) => void;
+  cancelAppointment: (apptId: string) => void;
   addReminder: (reminder: Reminder) => void;
   addBill: (bill: Bill) => void;
   addMessage: (msg: Omit<Message, 'id' | 'time' | 'read'>) => void;
@@ -57,8 +58,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       title: '预约成功提醒',
       content: `您已成功预约${appt.doctorName} ${appt.date} ${appt.timeSlot}的${appt.department}门诊，请按时就诊。`,
       relatedId: appt.id,
-      relatedType: 'appointment'
+      relatedType: 'appointment_detail'
     });
+  };
+
+  const cancelAppointment = (apptId: string) => {
+    const appt = appointments.find(a => a.id === apptId);
+    setAppointments(prev =>
+      prev.map(a => a.id === apptId ? { ...a, status: 'cancelled' as const } : a)
+    );
+    if (appt) {
+      addMessage({
+        type: 'appointment',
+        title: '预约已取消',
+        content: `您已取消${appt.petName}预约的${appt.doctorName} ${appt.date} ${appt.timeSlot}门诊。`,
+        relatedId: appt.id,
+        relatedType: 'appointment_detail'
+      });
+    }
   };
 
   const addReminder = (reminder: Reminder) => {
@@ -117,7 +134,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       savedPrescriptions,
       addSavedPrescription,
       addPet, updatePet,
-      addAppointment,
+      addAppointment, cancelAppointment,
       addReminder,
       addBill,
       addMessage

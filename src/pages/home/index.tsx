@@ -65,19 +65,21 @@ const HomePage: React.FC = () => {
   }, [messages]);
 
   const quickActions = [
-    { icon: '📅', text: '预约挂号', color: 'rgba(33, 150, 243, 0.1)', path: '/pages/appointment/index' },
-    { icon: '🐾', text: '宠物档案', color: 'rgba(76, 175, 80, 0.1)', path: '/pages/pets/index' },
-    { icon: '📋', text: '就诊记录', color: 'rgba(255, 152, 0, 0.1)', path: '/pages/records/index' },
-    { icon: '💊', text: '用药提醒', color: 'rgba(244, 67, 54, 0.1)', path: '/pages/reminders/index' },
-    { icon: '💰', text: '费用账单', color: 'rgba(156, 39, 176, 0.1)', path: '/pages/bills/index' },
-    { icon: '💉', text: '疫苗本', color: 'rgba(0, 188, 212, 0.1)', path: '/pages/pets/index' },
-    { icon: '📊', text: '健康报告', color: 'rgba(255, 193, 7, 0.1)', path: '/pages/records/index' },
-    { icon: '📍', text: '附近门店', color: 'rgba(76, 175, 80, 0.1)', path: '/pages/clinics/index' },
+    { icon: '📅', text: '预约挂号', color: 'rgba(33, 150, 243, 0.1)', path: '/pages/appointment/index', isTab: true },
+    { icon: '🐾', text: '宠物档案', color: 'rgba(76, 175, 80, 0.1)', path: '/pages/pets/index', isTab: true },
+    { icon: '📋', text: '就诊记录', color: 'rgba(255, 152, 0, 0.1)', path: '/pages/records/index', isTab: false },
+    { icon: '💊', text: '用药提醒', color: 'rgba(244, 67, 54, 0.1)', path: '/pages/reminders/index', isTab: false },
+    { icon: '💰', text: '费用账单', color: 'rgba(156, 39, 176, 0.1)', path: '/pages/bills/index', isTab: false },
+    { icon: '💉', text: '疫苗本', color: 'rgba(0, 188, 212, 0.1)', path: '/pages/pets/index', isTab: true },
+    { icon: '📊', text: '健康报告', color: 'rgba(255, 193, 7, 0.1)', path: '/pages/records/index', isTab: false },
+    { icon: '📍', text: '附近门店', color: 'rgba(76, 175, 80, 0.1)', path: '/pages/clinics/index', isTab: false },
   ];
 
-  const handleQuickAction = (path: string) => {
+  const tabBarPages = ['/pages/home/index', '/pages/pets/index', '/pages/appointment/index', '/pages/messages/index', '/pages/profile/index'];
+
+  const handleQuickAction = (path: string, isTab: boolean) => {
     if (path) {
-      if (path.includes('appointment') || path.includes('pets') || path.includes('messages') || path.includes('reminders') || path.includes('bills')) {
+      if (isTab || tabBarPages.includes(path)) {
         Taro.switchTab({ url: path });
       } else {
         Taro.navigateTo({ url: path });
@@ -198,7 +200,7 @@ const HomePage: React.FC = () => {
             <View
               key={index}
               className={styles.quickItem}
-              onClick={() => handleQuickAction(item.path)}
+              onClick={() => handleQuickAction(item.path, item.isTab)}
             >
               <View className={styles.quickIcon} style={{ background: item.color }}>
                 <Text>{item.icon}</Text>

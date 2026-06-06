@@ -22,6 +22,7 @@ const PetDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [newWeight, setNewWeight] = useState('');
   const [allergyInput, setAllergyInput] = useState('');
+  const [showReport, setShowReport] = useState(false);
 
   if (!pet) {
     return (
@@ -161,11 +162,15 @@ const PetDetailPage: React.FC = () => {
           Taro.showLoading({ title: '导出中...' });
           setTimeout(() => {
             Taro.hideLoading();
-            Taro.showToast({
-              title: fullReport ? '完整报告导出成功！' : '导出成功！已保存到相册',
-              icon: 'success',
-              duration: 2000
-            });
+            if (fullReport) {
+              setShowReport(true);
+            } else {
+              Taro.showToast({
+                title: '导出成功！已保存到相册',
+                icon: 'success',
+                duration: 2000
+              });
+            }
           }, 1500);
         }
       }
@@ -475,6 +480,168 @@ const PetDetailPage: React.FC = () => {
           )}
         </View>
       </ScrollView>
+
+      {showReport && (
+        <View className={styles.reportOverlay} onClick={() => setShowReport(false)}>
+          <View className={styles.reportSheet} onClick={(e) => e.stopPropagation()}>
+            <View className={styles.reportHeader}>
+              <Text className={styles.reportTitle}>{pet.name} 的完整健康报告</Text>
+              <Text className={styles.reportClose} onClick={() => setShowReport(false)}>×</Text>
+            </View>
+
+            <ScrollView scrollY className={styles.reportContent}>
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>📋 基本信息</Text>
+                <View className={styles.reportInfoGrid}>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>宠物名</Text>
+                    <Text className={styles.reportInfoValue}>{pet.name}</Text>
+                  </View>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>种类</Text>
+                    <Text className={styles.reportInfoValue}>{getSpeciesText(pet.species)}</Text>
+                  </View>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>品种</Text>
+                    <Text className={styles.reportInfoValue}>{pet.breed}</Text>
+                  </View>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>性别</Text>
+                    <Text className={styles.reportInfoValue}>{getGenderText(pet.gender)}</Text>
+                  </View>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>生日</Text>
+                    <Text className={styles.reportInfoValue}>{pet.birthday}</Text>
+                  </View>
+                  <View className={styles.reportInfoItem}>
+                    <Text className={styles.reportInfoLabel}>当前体重</Text>
+                    <Text className={styles.reportInfoValue}>{pet.weight || 0} kg</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>📊 体重记录 ({pet.weightRecords.length}条)</Text>
+                {sortedWeightRecords.length > 0 ? (
+                  sortedWeightRecords.slice(0, 5).map(record => (
+                    <View key={record.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{record.date}</Text>
+                      <Text className={styles.reportListItemText}>{record.weight} kg</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无体重记录</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>⚠️ 过敏史 ({pet.allergies.length}项)</Text>
+                {pet.allergies.length > 0 ? (
+                  <View className={styles.reportTags}>
+                    {pet.allergies.map((item, i) => (
+                      <Text key={i} className={styles.reportTag}>{item}</Text>
+                    ))}
+                  </View>
+                ) : (
+                  <Text className={styles.reportEmpty}>无已知过敏原</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>💉 疫苗本 ({pet.vaccineBook.length}张)</Text>
+                <Text className={styles.reportEmpty}>
+                  {pet.vaccineBook.length > 0 ? '已上传疫苗本图片' : '暂无疫苗本记录'}
+                </Text>
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>📅 预约记录 ({petAppointments.length}条)</Text>
+                {petAppointments.length > 0 ? (
+                  petAppointments.slice(0, 3).map(appt => (
+                    <View key={appt.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{appt.date} {appt.timeSlot}</Text>
+                      <Text className={styles.reportListItemText}>{appt.doctorName}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无预约记录</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>🏥 就诊记录 ({recordsData.filter(r => r.petId === pet.id).length}条)</Text>
+                {recordsData.filter(r => r.petId === pet.id).length > 0 ? (
+                  recordsData.filter(r => r.petId === pet.id).slice(0, 3).map(record => (
+                    <View key={record.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{record.date}</Text>
+                      <Text className={styles.reportListItemText}>{record.diagnosis}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无就诊记录</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>💊 已保存处方 ({savedPrescriptions.filter(p => p.petName === pet.name).length}条)</Text>
+                {savedPrescriptions.filter(p => p.petName === pet.name).length > 0 ? (
+                  savedPrescriptions.filter(p => p.petName === pet.name).slice(0, 2).map(presc => (
+                    <View key={presc.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{presc.date}</Text>
+                      <Text className={styles.reportListItemText}>{presc.doctorName}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无保存的处方</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>💰 账单明细 ({petBills.length}条)</Text>
+                <View className={styles.reportBillSummary}>
+                  <Text className={styles.reportBillAmount}>累计消费：¥{totalSpending.toFixed(2)}</Text>
+                </View>
+                {petBills.length > 0 ? (
+                  petBills.slice(0, 3).map(bill => (
+                    <View key={bill.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{bill.date}</Text>
+                      <Text className={styles.reportListItemText}>¥{bill.amount.toFixed(2)}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无账单记录</Text>
+                )}
+              </View>
+
+              <View className={styles.reportSection}>
+                <Text className={styles.reportSectionTitle}>🔔 用药提醒 ({petReminders.length}条)</Text>
+                <View className={styles.reportBillSummary}>
+                  <Text className={styles.reportBillAmount}>进行中：{activeRemindersCount} 条</Text>
+                </View>
+                {petReminders.length > 0 ? (
+                  petReminders.slice(0, 3).map(reminder => (
+                    <View key={reminder.id} className={styles.reportListItem}>
+                      <Text className={styles.reportListItemText}>{reminder.title}</Text>
+                      <Text className={styles.reportListItemText}>{reminder.time}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className={styles.reportEmpty}>暂无用药提醒</Text>
+                )}
+              </View>
+
+              <View className={styles.reportFooter}>
+                <Text className={styles.reportFooterText}>
+                  报告生成时间：{new Date().toLocaleString('zh-CN')}
+                </Text>
+                <Text className={styles.reportFooterSuccess}>
+                  ✅ 报告已导出成功，已保存到相册
+                </Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
     </View>
   );
 };

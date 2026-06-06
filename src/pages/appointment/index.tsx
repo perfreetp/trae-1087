@@ -17,7 +17,7 @@ const filterOptions = [
 
 const AppointmentPage: React.FC = () => {
   const router = useRouter();
-  const { doctors, pets, appointments, addAppointment, setAppointments, selectedDoctorForAppointment, setSelectedDoctorForAppointment } = useApp();
+  const { doctors, pets, appointments, addAppointment, cancelAppointment, selectedDoctorForAppointment, setSelectedDoctorForAppointment } = useApp();
 
   const [activeTab, setActiveTab] = useState(0);
   const [selectedDept, setSelectedDept] = useState('all');
@@ -93,9 +93,7 @@ const AppointmentPage: React.FC = () => {
       content: '确定要取消这个预约吗？',
       success: (res) => {
         if (res.confirm) {
-          setAppointments(prev =>
-            prev.map(a => a.id === id ? { ...a, status: 'cancelled' as const } : a)
-          );
+          cancelAppointment(id);
           Taro.showToast({ title: '已取消', icon: 'success' });
         }
       }

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { recordsData } from '@/data/records';
-import { MedicalRecord, Reminder } from '@/types';
+import { MedicalRecord, Reminder, Bill } from '@/types';
 import { useApp } from '@/store';
 
 interface RecordRating {
@@ -21,7 +21,7 @@ interface FollowUpPlan {
 }
 
 const RecordsPage: React.FC = () => {
-  const { savedPrescriptions, addSavedPrescription, addReminder, pets } = useApp();
+  const { savedPrescriptions, addSavedPrescription, addReminder, pets, bills, addBill, doctors } = useApp();
   const [records] = useState<MedicalRecord[]>(recordsData);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showSavedPrescriptions, setShowSavedPrescriptions] = useState(false);
@@ -92,6 +92,68 @@ const RecordsPage: React.FC = () => {
 
   const hasFollowUpPlan = (recordId: string) => {
     return followUpPlans.some(p => p.recordId === recordId);
+  };
+
+  const hasBillForRecord = (recordId: string) => {
+    return bills.some(b => b.recordId === recordId);
+  };
+
+  const handleGenerateBillFromRecord = (record: MedicalRecord) => {
+    if (hasBillForRecord(record.id)) {
+      Taro.showModal({
+        title: '账单已存在',
+        content: '该就诊记录已生成过账单，是否跳转到账单页面查看？',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/bills/index' });
+          }
+        }
+      });
+      return;
+    }
+
+    const doctor = doctors.find(d => d.id === record.doctorId);
+    const registrationFee = doctor?.price || 50;
+
+    const checkFee = record.checkResults.length * 60;
+    const medicineFee = record.prescriptions.reduce((sum, p) => {
+      return sum + 50;
+    }, 0);
+
+    const totalAmount = registrationFee + checkFee + medicineFee;
+
+    const items: Bill['items'] = [];
+    if (registrationFee > 0) items.push({ name: '挂号费', price: registrationFee, quantity: 1 });
+    if (checkFee > 0) items.push({ name: '检查费', price: 60, quantity: record.checkResults.length });
+    if (medicineFee > 0) items.push({ name: '药品费', price: 50, quantity: record.prescriptions.length });
+
+    const newBill: Bill = {
+      id: Date.now().toString(),
+      date: new Date().toISOString().split('T')[0],
+      type: record.department || '门诊',
+      amount: totalAmount,
+      status: 'pending',
+      items,
+      invoiceAvailable: true,
+      invoiceStatus: 'not_applied',
+      petId: record.petId,
+      petName: record.petName,
+      recordId: record.id
+    };
+
+    Taro.showModal({
+      title: '生成账单',
+      content: `确认生成 ${record.petName} 的账单吗？\n\n• 挂号费：¥${registrationFee}\n• 检查费：¥${checkFee}（${record.checkResults.length}项）\n• 药品费：¥${medicineFee}（${record.prescriptions.length}种）\n\n合计：¥${totalAmount}`,
+      success: (res) => {
+        if (res.confirm) {
+          addBill(newBill);
+          Taro.showToast({ title: '账单生成成功', icon: 'success' });
+          setTimeout(() => {
+            Taro.navigateTo({ url: '/pages/bills/index' });
+          }, 1000);
+        }
+      }
+    });
   };
 
   const toggleExpand = (id: string) => {
@@ -405,6 +467,25 @@ const RecordsPage: React.FC = () => {
                         <View className={styles.followUpInfo}>
                           <Text className={styles.followUpInfoText}>
                             📅 复诊提醒已创建，可在用药提醒中查看和管理
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <View className={styles.billSection}>
+                      <View className={styles.detailTitleRow}>
+                        <Text className={styles.detailTitle}>费用账单</Text>
+                        <Text
+                          className={styles.saveBtn}
+                          onClick={() => handleGenerateBillFromRecord(record)}
+                        >
+                          {hasBillForRecord(record.id) ? '查看账单' : '+ 生成账单'}
+                        </Text>
+                      </View>
+                      {hasBillForRecord(record.id) && (
+                        <View className={styles.followUpInfo}>
+                          <Text className={styles.followUpInfoText}>
+                            💰 账单已生成，可在费用账单中查看详情
                           </Text>
                         </View>
                       )}

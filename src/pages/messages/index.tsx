@@ -33,18 +33,20 @@ const MessagesPage: React.FC = () => {
       prev.map(m => m.id === msg.id ? { ...m, read: true } : m)
     );
 
-    if (msg.relatedType === 'appointment') {
+    if (msg.relatedType === 'appointment_detail' && msg.relatedId) {
+      Taro.navigateTo({ url: `/pages/appointment-detail/index?id=${msg.relatedId}` });
+    } else if (msg.relatedType === 'appointment') {
       Taro.switchTab({ url: '/pages/appointment/index' });
     } else if (msg.relatedType === 'reminder') {
-      Taro.switchTab({ url: '/pages/reminders/index' });
+      Taro.navigateTo({ url: '/pages/reminders/index' });
     } else if (msg.relatedType === 'record') {
-      Taro.switchTab({ url: '/pages/records/index' });
+      Taro.navigateTo({ url: '/pages/records/index' });
     } else if (msg.relatedType === 'bill') {
-      Taro.switchTab({ url: '/pages/bills/index' });
+      Taro.navigateTo({ url: '/pages/bills/index' });
     } else if (msg.type === 'appointment') {
       Taro.switchTab({ url: '/pages/appointment/index' });
     } else if (msg.type === 'result') {
-      Taro.switchTab({ url: '/pages/records/index' });
+      Taro.navigateTo({ url: '/pages/records/index' });
     }
   };
 

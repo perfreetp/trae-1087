@@ -3,10 +3,11 @@ import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useApp } from '@/store';
+import { Bill } from '@/types';
 
 const AppointmentDetailPage: React.FC = () => {
   const router = useRouter();
-  const { appointments, setAppointments } = useApp();
+  const { appointments, cancelAppointment, bills, addBill, doctors } = useApp();
   const apptId = router.params.id;
 
   const appointment = appointments.find(a => a.id === apptId);
@@ -40,9 +41,7 @@ const AppointmentDetailPage: React.FC = () => {
       content: '确定要取消这个预约吗？取消后不可恢复。',
       success: (res) => {
         if (res.confirm) {
-          setAppointments(prev =>
-            prev.map(a => a.id === apptId ? { ...a, status: 'cancelled' as const } : a)
-          );
+          cancelAppointment(apptId);
           Taro.showToast({ title: '已取消预约', icon: 'success' });
           setTimeout(() => {
             Taro.navigateBack();
@@ -52,7 +51,59 @@ const AppointmentDetailPage: React.FC = () => {
     });
   };
 
+  const hasBill = bills.some(b => b.appointmentId === apptId);
+
+  const handleGenerateBill = () => {
+    if (hasBill) {
+      const existingBill = bills.find(b => b.appointmentId === apptId);
+      Taro.showModal({
+        title: '账单已存在',
+        content: '该预约已生成过账单，是否跳转到账单页面查看？',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/bills/index' });
+          }
+        }
+      });
+      return;
+    }
+
+    const doctor = doctors.find(d => d.id === appointment?.doctorId);
+    const registrationFee = doctor?.price || 50;
+
+    const newBill: Bill = {
+      id: Date.now().toString(),
+      date: new Date().toISOString().split('T')[0],
+      type: appointment?.department || '门诊',
+      amount: registrationFee,
+      status: 'pending',
+      items: [
+        { name: '挂号费', price: registrationFee, quantity: 1 }
+      ],
+      invoiceAvailable: true,
+      invoiceStatus: 'not_applied',
+      petId: appointment?.petId,
+      petName: appointment?.petName,
+      appointmentId: apptId
+    };
+
+    Taro.showModal({
+      title: '生成账单',
+      content: `确认生成 ${appointment?.petName} 的账单吗？\n挂号费：¥${registrationFee}`,
+      success: (res) => {
+        if (res.confirm) {
+          addBill(newBill);
+          Taro.showToast({ title: '账单生成成功', icon: 'success' });
+          setTimeout(() => {
+            Taro.navigateTo({ url: '/pages/bills/index' });
+          }, 1000);
+        }
+      }
+    });
+  };
+
   const canCancel = appointment.status === 'pending' || appointment.status === 'confirmed';
+  const canGenerateBill = appointment.status === 'completed';
 
   return (
     <ScrollView scrollY className={styles.page}>
@@ -145,9 +196,9 @@ const AppointmentDetailPage: React.FC = () => {
             <Text className={styles.btnTextPrimary}>取消预约</Text>
           </View>
         )}
-        {!canCancel && appointment.status === 'completed' && (
-          <View className={`${styles.btn} ${styles.btnPrimary}`}>
-            <Text className={styles.btnTextPrimary}>查看病历</Text>
+        {canGenerateBill && (
+          <View className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleGenerateBill}>
+            <Text className={styles.btnTextPrimary}>{hasBill ? '查看账单' : '生成账单'}</Text>
           </View>
         )}
       </View>
