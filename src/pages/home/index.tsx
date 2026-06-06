@@ -1,26 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import DoctorCard from '@/components/DoctorCard';
 import { doctorsData } from '@/data/doctors';
-import { appointmentsData } from '@/data/appointments';
-import { messagesData } from '@/data/messages';
-import { Appointment } from '@/types';
+import { useApp } from '@/store';
+import { Appointment, Reminder } from '@/types';
 
 const HomePage: React.FC = () => {
-  const [upcomingAppt, setUpcomingAppt] = useState<Appointment | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { appointments, reminders, messages, setReminders } = useApp();
 
-  useEffect(() => {
-    const upcoming = appointmentsData.find(
-      a => a.status === 'confirmed' || a.status === 'pending'
-    );
-    setUpcomingAppt(upcoming || null);
+  const todayStr = new Date().toISOString().split('T')[0];
 
-    const unread = messagesData.filter(m => !m.read).length;
-    setUnreadCount(unread);
-  }, []);
+  const todayAppointments = useMemo(() => {
+    return appointments.filter(a => a.date === todayStr && a.status !== 'cancelled');
+  }, [appointments, todayStr]);
+
+  const todayReminders = useMemo(() => {
+    return reminders.filter(r => {
+      if (!r.enabled) return false;
+      const reminderDate = r.time.split(' ')[0];
+      const isToday = reminderDate === todayStr || reminderDate.length === 5;
+      return isToday;
+    });
+  }, [reminders, todayStr]);
+
+  const todayTodos = useMemo(() => {
+    const todos: { type: string; id: string; title: string; subtitle: string; icon: string; data: Appointment | Reminder }[] = [];
+
+    todayAppointments.forEach(appt => {
+      todos.push({
+        type: 'appointment',
+        id: appt.id,
+        title: `${appt.doctorName} · ${appt.department}`,
+        subtitle: `${appt.timeSlot} · ${appt.petName}`,
+        icon: '📅',
+        data: appt
+      });
+    });
+
+    todayReminders.forEach(reminder => {
+      const typeIcon = reminder.type === 'medicine' ? '💊' : reminder.type === 'recheck' ? '📅' : '💉';
+      const typeLabel = reminder.type === 'medicine' ? '用药' : reminder.type === 'recheck' ? '复诊' : '疫苗';
+      todos.push({
+        type: 'reminder',
+        id: reminder.id,
+        title: `${typeLabel}提醒：${reminder.title}`,
+        subtitle: `${reminder.time} · ${reminder.petName}`,
+        icon: typeIcon,
+        data: reminder
+      });
+    });
+
+    return todos;
+  }, [todayAppointments, todayReminders]);
+
+  const upcomingAppt = useMemo(() => {
+    const activeAppts = appointments.filter(a => a.status === 'confirmed' || a.status === 'pending');
+    return activeAppts.length > 0 ? activeAppts[0] : null;
+  }, [appointments]);
+
+  const unreadCount = useMemo(() => {
+    return messages.filter(m => !m.read).length;
+  }, [messages]);
 
   const quickActions = [
     { icon: '📅', text: '预约挂号', color: 'rgba(33, 150, 243, 0.1)', path: '/pages/appointment/index' },
@@ -35,7 +77,7 @@ const HomePage: React.FC = () => {
 
   const handleQuickAction = (path: string) => {
     if (path) {
-      if (path.includes('appointment') || path.includes('pets') || path.includes('messages') || path.includes('profile')) {
+      if (path.includes('appointment') || path.includes('pets') || path.includes('messages') || path.includes('reminders') || path.includes('bills')) {
         Taro.switchTab({ url: path });
       } else {
         Taro.navigateTo({ url: path });
@@ -51,11 +93,29 @@ const HomePage: React.FC = () => {
     });
   };
 
+  const handleTodoClick = (todo: any) => {
+    if (todo.type === 'appointment') {
+      Taro.switchTab({ url: '/pages/appointment/index' });
+    } else if (todo.type === 'reminder') {
+      Taro.switchTab({ url: '/pages/reminders/index' });
+    }
+  };
+
+  const handleTodoComplete = (todo: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (todo.type === 'reminder') {
+      setReminders(prev =>
+        prev.map(r => r.id === todo.id ? { ...r, enabled: false } : r)
+      );
+      Taro.showToast({ title: '已完成', icon: 'success' });
+    } else if (todo.type === 'appointment') {
+      Taro.showToast({ title: '请前往预约详情操作', icon: 'none' });
+    }
+  };
+
   const handleAppointmentClick = () => {
     if (upcomingAppt) {
-      Taro.navigateTo({
-        url: `/pages/appointment-detail/index?id=${upcomingAppt.id}`
-      });
+      Taro.switchTab({ url: '/pages/appointment/index' });
     }
   };
 
@@ -92,6 +152,35 @@ const HomePage: React.FC = () => {
       </View>
 
       <View className={styles.content}>
+        {todayTodos.length > 0 && (
+          <View className={styles.todoSection}>
+            <View className={styles.sectionHeader}>
+              <Text className={styles.sectionTitle}>📌 今日待办 ({todayTodos.length})</Text>
+            </View>
+            <View className={styles.todoList}>
+              {todayTodos.map(todo => (
+                <View
+                  key={`${todo.type}-${todo.id}`}
+                  className={styles.todoItem}
+                  onClick={() => handleTodoClick(todo)}
+                >
+                  <View className={styles.todoIcon}>{todo.icon}</View>
+                  <View className={styles.todoContent}>
+                    <Text className={styles.todoTitle}>{todo.title}</Text>
+                    <Text className={styles.todoSubtitle}>{todo.subtitle}</Text>
+                  </View>
+                  <View
+                    className={styles.todoAction}
+                    onClick={(e) => handleTodoComplete(todo, e)}
+                  >
+                    <Text className={styles.todoActionText}>完成</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         <View className={styles.banner}>
           <Image
             className={styles.bannerImage}

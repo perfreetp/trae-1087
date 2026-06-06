@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { recordsData } from '@/data/records';
-import { MedicalRecord } from '@/types';
+import { MedicalRecord, Reminder } from '@/types';
 import { useApp } from '@/store';
 
 interface RecordRating {
@@ -13,13 +13,86 @@ interface RecordRating {
   rated: boolean;
 }
 
+interface FollowUpPlan {
+  recordId: string;
+  recheckDate: string;
+  notes: string;
+  checkItems: string[];
+}
+
 const RecordsPage: React.FC = () => {
-  const { savedPrescriptions, addSavedPrescription } = useApp();
+  const { savedPrescriptions, addSavedPrescription, addReminder, pets } = useApp();
   const [records] = useState<MedicalRecord[]>(recordsData);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showSavedPrescriptions, setShowSavedPrescriptions] = useState(false);
   const [ratings, setRatings] = useState<RecordRating[]>([]);
   const [ratingForm, setRatingForm] = useState<{ recordId: string; rating: number; comment: string } | null>(null);
+  const [followUpForm, setFollowUpForm] = useState<FollowUpPlan | null>(null);
+  const [followUpPlans, setFollowUpPlans] = useState<FollowUpPlan[]>([]);
+
+  const dateOptions = useMemo(() => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 1; i <= 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push(date.toISOString().split('T')[0]);
+    }
+    return dates;
+  }, []);
+
+  const defaultCheckItems = ['血常规', '生化检查', '皮肤检查', '影像学检查', '体重监测'];
+
+  const toggleCheckItem = (item: string) => {
+    if (!followUpForm) return;
+    const currentItems = followUpForm.checkItems || [];
+    const newItems = currentItems.includes(item)
+      ? currentItems.filter(i => i !== item)
+      : [...currentItems, item];
+    setFollowUpForm({ ...followUpForm, checkItems: newItems });
+  };
+
+  const openFollowUpForm = (record: MedicalRecord) => {
+    setFollowUpForm({
+      recordId: record.id,
+      recheckDate: dateOptions[6],
+      notes: '',
+      checkItems: []
+    });
+  };
+
+  const handleCreateFollowUp = (record: MedicalRecord) => {
+    if (!followUpForm) return;
+    if (!followUpForm.recheckDate) {
+      Taro.showToast({ title: '请选择复诊日期', icon: 'none' });
+      return;
+    }
+
+    const pet = pets.find(p => p.id === record.petId);
+
+    const reminder: Reminder = {
+      id: Date.now().toString(),
+      type: 'recheck',
+      title: `复诊：${record.diagnosis}`,
+      petName: record.petName,
+      petId: record.petId,
+      time: `${followUpForm.recheckDate} 10:00`,
+      repeat: '单次',
+      enabled: true,
+      relatedType: 'record',
+      relatedId: record.id,
+      relatedInfo: `关联就诊：${record.date} ${record.doctorName}${followUpForm.checkItems.length > 0 ? ` | 复查项目：${followUpForm.checkItems.join('、')}` : ''}${followUpForm.notes ? ` | 注意事项：${followUpForm.notes}` : ''}`
+    };
+
+    addReminder(reminder);
+    setFollowUpPlans(prev => [...prev, followUpForm]);
+    setFollowUpForm(null);
+    Taro.showToast({ title: '随访计划已生成', icon: 'success' });
+  };
+
+  const hasFollowUpPlan = (recordId: string) => {
+    return followUpPlans.some(p => p.recordId === recordId);
+  };
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -266,6 +339,76 @@ const RecordsPage: React.FC = () => {
                         </Text>
                       </View>
                     )}
+
+                    <View className={styles.followUpSection}>
+                      <View className={styles.detailTitleRow}>
+                        <Text className={styles.detailTitle}>随访计划</Text>
+                        {hasFollowUpPlan(record.id) ? (
+                          <Text className={styles.savedTag}>✓ 已生成</Text>
+                        ) : !followUpForm && (
+                          <Text className={styles.saveBtn} onClick={() => openFollowUpForm(record)}>
+                            + 生成随访计划
+                          </Text>
+                        )}
+                      </View>
+
+                      {followUpForm?.recordId === record.id && (
+                        <View className={styles.followUpForm}>
+                          <View className={styles.formItem}>
+                            <Text className={styles.formLabel}>复诊日期</Text>
+                            <ScrollView scrollX className={styles.dateScroll}>
+                              {dateOptions.map(date => (
+                                <Text
+                                  key={date}
+                                  className={`${styles.dateChip} ${followUpForm.recheckDate === date ? styles.dateChipActive : ''}`}
+                                  onClick={() => setFollowUpForm({ ...followUpForm, recheckDate: date })}
+                                >
+                                  {date.slice(5)}
+                                </Text>
+                              ))}
+                            </ScrollView>
+                          </View>
+
+                          <View className={styles.formItem}>
+                            <Text className={styles.formLabel}>复查项目（可多选）</Text>
+                            <View className={styles.checkGrid}>
+                              {defaultCheckItems.map(item => (
+                                <Text
+                                  key={item}
+                                  className={`${styles.checkChip} ${followUpForm.checkItems.includes(item) ? styles.checkChipActive : ''}`}
+                                  onClick={() => toggleCheckItem(item)}
+                                >
+                                  {followUpForm.checkItems.includes(item) ? '✓ ' : ''}{item}
+                                </Text>
+                              ))}
+                            </View>
+                          </View>
+
+                          <View className={styles.formItem}>
+                            <Text className={styles.formLabel}>注意事项</Text>
+                            <Input
+                              className={styles.formInput}
+                              placeholder="如：注意饮食、避免剧烈运动等"
+                              value={followUpForm.notes}
+                              onInput={(e) => setFollowUpForm({ ...followUpForm, notes: e.detail.value })}
+                            />
+                          </View>
+
+                          <View className={styles.formActions}>
+                            <Text className={styles.formCancel} onClick={() => setFollowUpForm(null)}>取消</Text>
+                            <Text className={styles.formSubmit} onClick={() => handleCreateFollowUp(record)}>生成提醒</Text>
+                          </View>
+                        </View>
+                      )}
+
+                      {hasFollowUpPlan(record.id) && !followUpForm && (
+                        <View className={styles.followUpInfo}>
+                          <Text className={styles.followUpInfoText}>
+                            📅 复诊提醒已创建，可在用药提醒中查看和管理
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 )}
               </View>

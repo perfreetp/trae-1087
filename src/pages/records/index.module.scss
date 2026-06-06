@@ -150,6 +150,141 @@
   padding: 0 $page-padding $spacing-lg;
 }
 
+.followUpSection {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.followUpForm {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.formItem {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.dateScroll {
+  white-space: nowrap;
+}
+
+.dateChip {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  margin-right: $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 1rpx solid $color-divider;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.dateChipActive {
+  background: $color-primary-light;
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
+.checkGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.checkChip {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 1rpx solid $color-divider;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.checkChipActive {
+  background: $color-primary-light;
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
+.formInput {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  border: 1rpx solid $color-divider;
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.formCancel {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 1rpx solid $color-divider;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.formSubmit {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.followUpInfo {
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $color-success-light;
+  border-radius: $radius-sm;
+}
+
+.followUpInfoText {
+  font-size: $font-size-sm;
+  color: $color-success;
+}
+
 .recordCard {
   background: $color-bg-card;
   border-radius: $radius-lg;

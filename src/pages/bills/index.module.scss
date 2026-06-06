@@ -30,9 +30,39 @@
   font-weight: $font-weight-medium;
 }
 
+.filterBar {
+  padding: $spacing-md $page-padding;
+  padding-top: $spacing-sm;
+}
+
+.filterScroll {
+  white-space: nowrap;
+}
+
+.filterChip {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  margin-right: $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 1rpx solid $color-divider;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.filterChipActive {
+  background: $color-primary-light;
+  color: $color-primary;
+  border-color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
 .content {
   padding: 0 $page-padding;
-  margin-top: -$spacing-lg;
 }
 
 .billCard {
@@ -50,15 +80,33 @@
 
 .billHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: $spacing-md;
+}
+
+.billHeaderLeft {
+  flex: 1;
+}
+
+.billHeaderRight {
+  flex-shrink: 0;
 }
 
 .billType {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.billPet {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: $color-primary-light;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
 }
 
 .billStatus {
@@ -85,25 +133,94 @@
   display: block;
 }
 
-.billItems {
-  margin-bottom: $spacing-md;
+.billSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx dashed $color-divider;
 }
 
-.billItem {
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.summaryItemLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 2rpx;
+}
+
+.summaryItemValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.billDetail {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.detailTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.detailItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: $spacing-sm;
+  margin-bottom: $spacing-xs;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
-.billItemName {
+.detailItemName {
   font-size: $font-size-sm;
   color: $color-text-secondary;
 }
 
-.billItemPrice {
+.detailItemPrice {
   font-size: $font-size-sm;
   color: $color-text-primary;
+}
+
+.invoiceRow {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-divider;
+}
+
+.invoiceStatus {
+  font-size: $font-size-xs;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.invoiceNotApplied {
+  color: $color-text-tertiary;
+  background: $color-bg-page;
+}
+
+.invoiceApplied {
+  color: $color-warning;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.invoiceIssued {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .billFooter {

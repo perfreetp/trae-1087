@@ -351,8 +351,8 @@
 
 .summaryHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: $spacing-md;
   margin-bottom: $spacing-lg;
 }
 
@@ -362,19 +362,38 @@
   color: $color-text-primary;
 }
 
+.exportBtnRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
 .exportBtn {
+  flex: 1;
   padding: $spacing-xs $spacing-md;
-  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  background: $color-bg-page;
   border-radius: $radius-button;
+  border: 1rpx solid $color-divider;
+  text-align: center;
 
   &:active {
-    opacity: 0.9;
+    opacity: 0.8;
   }
 }
 
 .exportBtnText {
   font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.exportBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-color: transparent;
+}
+
+.exportBtnTextPrimary {
+  font-size: $font-size-sm;
   color: $color-text-white;
+  font-weight: $font-weight-medium;
 }
 
 .summarySection {
@@ -476,4 +495,87 @@
   flex: 1;
   font-size: $font-size-sm;
   color: $color-text-secondary;
+}
+
+.summaryPrescription {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.summaryPrescriptionDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.summaryPrescriptionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.summaryPrescriptionItem {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.summaryPrescriptionMore {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.summaryStats {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.summaryStat {
+  flex: 1;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+}
+
+.summaryStatValue {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.summaryStatLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.summaryBill {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.summaryBillRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.summaryBillLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.summaryBillValue {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
 }

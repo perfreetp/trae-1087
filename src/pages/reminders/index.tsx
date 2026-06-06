@@ -4,7 +4,6 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useApp } from '@/store';
 import { Reminder } from '@/types';
-import { appointmentsData } from '@/data/appointments';
 import { recordsData } from '@/data/records';
 
 const typeOptions = [
@@ -30,7 +29,7 @@ const timeOptions = [
 ];
 
 const RemindersPage: React.FC = () => {
-  const { reminders, setReminders, addReminder, pets } = useApp();
+  const { reminders, setReminders, addReminder, pets, appointments } = useApp();
 
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState('medicine');
@@ -38,6 +37,7 @@ const RemindersPage: React.FC = () => {
   const [formTitle, setFormTitle] = useState('');
   const [formTime, setFormTime] = useState('');
   const [formRepeat, setFormRepeat] = useState('每日1次');
+  const [formRelatedType, setFormRelatedType] = useState<'appointment' | 'record' | ''>('');
   const [formRelatedId, setFormRelatedId] = useState('');
   const [petFilter, setPetFilter] = useState('all');
 
@@ -73,8 +73,25 @@ const RemindersPage: React.FC = () => {
     setFormTitle('');
     setFormTime('08:00');
     setFormRepeat('每日1次');
+    setFormRelatedType('');
     setFormRelatedId('');
     setShowForm(true);
+  };
+
+  const getRelatedInfo = (relatedType: 'appointment' | 'record' | undefined, relatedId: string | undefined) => {
+    if (!relatedType || !relatedId) return '';
+    if (relatedType === 'appointment') {
+      const appt = appointments.find(a => a.id === relatedId);
+      if (appt) {
+        return `关联预约：${appt.date} ${appt.doctorName}`;
+      }
+    } else if (relatedType === 'record') {
+      const record = recordsData.find(r => r.id === relatedId);
+      if (record) {
+        return `关联就诊：${record.date} ${record.doctorName}`;
+      }
+    }
+    return '';
   };
 
   const handleSubmit = () => {
@@ -94,18 +111,9 @@ const RemindersPage: React.FC = () => {
     const pet = pets.find(p => p.id === formPet);
     if (!pet) return;
 
-    let relatedInfo = '';
-    if (formType === 'recheck' && formRelatedId) {
-      const appt = appointmentsData.find(a => a.id === formRelatedId);
-      const record = recordsData.find(r => r.id === formRelatedId);
-      if (appt) {
-        relatedInfo = `关联预约：${appt.date} ${appt.doctorName}`;
-      } else if (record) {
-        relatedInfo = `关联就诊：${record.date} ${record.doctorName}`;
-      }
-    }
+    const relatedInfo = getRelatedInfo(formRelatedType || undefined, formRelatedId || undefined);
 
-    const newReminder: Reminder & { relatedInfo?: string } = {
+    const newReminder: Reminder = {
       id: Date.now().toString(),
       type: formType as 'medicine' | 'recheck' | 'vaccine',
       title: formTitle.trim(),
@@ -114,6 +122,8 @@ const RemindersPage: React.FC = () => {
       time: formTime,
       repeat: formRepeat,
       enabled: true,
+      relatedType: formRelatedType || undefined,
+      relatedId: formRelatedId || undefined,
       relatedInfo
     };
 
@@ -124,20 +134,25 @@ const RemindersPage: React.FC = () => {
 
   const filteredReminders = useMemo(() => {
     if (petFilter === 'all') return reminders;
-    return reminders.filter(r => (r as any).petId === petFilter || r.petName === pets.find(p => p.id === petFilter)?.name);
+    return reminders.filter(r => r.petId === petFilter || r.petName === pets.find(p => p.id === petFilter)?.name);
   }, [reminders, petFilter, pets]);
 
-  const relatedOptions = useMemo(() => {
-    if (formType !== 'recheck') return [];
-    const options: { value: string; label: string }[] = [];
-    appointmentsData.slice(0, 3).forEach(a => {
-      options.push({ value: a.id, label: `预约：${a.date} ${a.doctorName}` });
-    });
-    recordsData.slice(0, 3).forEach(r => {
-      options.push({ value: r.id, label: `就诊：${r.date} ${r.doctorName}` });
-    });
-    return options;
-  }, [formType]);
+  const relatedAppointmentOptions = useMemo(() => {
+    return appointments
+      .filter(a => a.status !== 'cancelled')
+      .slice(0, 5)
+      .map(a => ({
+        value: a.id,
+        label: `${a.date} ${a.doctorName} - ${a.department}`
+      }));
+  }, [appointments]);
+
+  const relatedRecordOptions = useMemo(() => {
+    return recordsData.slice(0, 5).map(r => ({
+      value: r.id,
+      label: `${r.date} ${r.doctorName} - ${r.diagnosis}`
+    }));
+  }, []);
 
   return (
     <View className={styles.page}>
@@ -180,8 +195,10 @@ const RemindersPage: React.FC = () => {
                   <View className={styles.reminderInfo}>
                     <Text className={styles.reminderTitle}>{reminder.title}</Text>
                     <Text className={styles.reminderPet}>{reminder.petName}</Text>
-                    {(reminder as any).relatedInfo && (
-                      <Text className={styles.reminderRelated}>{(reminder as any).relatedInfo}</Text>
+                    {(reminder.relatedInfo || (reminder.relatedType && reminder.relatedId)) && (
+                      <Text className={styles.reminderRelated}>
+                        {reminder.relatedInfo || getRelatedInfo(reminder.relatedType, reminder.relatedId)}
+                      </Text>
                     )}
                   </View>
                   {!reminder.enabled && (
@@ -229,7 +246,7 @@ const RemindersPage: React.FC = () => {
                     <Text
                       key={opt.value}
                       className={`${styles.optionItem} ${formType === opt.value ? styles.optionItemActive : ''}`}
-                      onClick={() => { setFormType(opt.value); setFormRelatedId(''); }}
+                      onClick={() => { setFormType(opt.value); setFormRelatedType(''); setFormRelatedId(''); }}
                     >
                       {opt.label}
                     </Text>
@@ -252,11 +269,55 @@ const RemindersPage: React.FC = () => {
                 </View>
               </View>
 
-              {formType === 'recheck' && relatedOptions.length > 0 && (
+              {formType === 'recheck' && (
                 <View className={styles.formItem}>
-                  <Text className={styles.formLabel}>关联记录（可选）</Text>
+                  <Text className={styles.formLabel}>关联类型</Text>
+                  <View className={styles.optionGrid}>
+                    <Text
+                      className={`${styles.optionItem} ${formRelatedType === '' ? styles.optionItemActive : ''}`}
+                      onClick={() => { setFormRelatedType(''); setFormRelatedId(''); }}
+                    >
+                      不关联
+                    </Text>
+                    <Text
+                      className={`${styles.optionItem} ${formRelatedType === 'appointment' ? styles.optionItemActive : ''}`}
+                      onClick={() => { setFormRelatedType('appointment'); setFormRelatedId(''); }}
+                    >
+                      📅 关联预约
+                    </Text>
+                    <Text
+                      className={`${styles.optionItem} ${formRelatedType === 'record' ? styles.optionItemActive : ''}`}
+                      onClick={() => { setFormRelatedType('record'); setFormRelatedId(''); }}
+                    >
+                      📋 关联就诊
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {formType === 'recheck' && formRelatedType === 'appointment' && relatedAppointmentOptions.length > 0 && (
+                <View className={styles.formItem}>
+                  <Text className={styles.formLabel}>选择预约</Text>
                   <View className={styles.optionList}>
-                    {relatedOptions.map(opt => (
+                    {relatedAppointmentOptions.map(opt => (
+                      <Text
+                        key={opt.value}
+                        className={`${styles.optionRow} ${formRelatedId === opt.value ? styles.optionRowActive : ''}`}
+                        onClick={() => setFormRelatedId(formRelatedId === opt.value ? '' : opt.value)}
+                      >
+                        {opt.label}
+                        {formRelatedId === opt.value && <Text className={styles.optionCheck}>✓</Text>}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {formType === 'recheck' && formRelatedType === 'record' && relatedRecordOptions.length > 0 && (
+                <View className={styles.formItem}>
+                  <Text className={styles.formLabel}>选择就诊记录</Text>
+                  <View className={styles.optionList}>
+                    {relatedRecordOptions.map(opt => (
                       <Text
                         key={opt.value}
                         className={`${styles.optionRow} ${formRelatedId === opt.value ? styles.optionRowActive : ''}`}

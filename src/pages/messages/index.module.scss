@@ -110,6 +110,18 @@
   @include text-ellipsis-multi(2);
 }
 
+.messageRelated {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1rpx dashed $color-divider;
+}
+
+.relatedText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
 .emptyTip {
   text-align: center;
   padding: $spacing-xl * 3;

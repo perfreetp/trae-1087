@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { messagesData } from '@/data/messages';
+import { useApp } from '@/store';
 import { Message } from '@/types';
 
 const MessagesPage: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>(messagesData);
+  const { messages, setMessages } = useApp();
 
   const getTypeIcon = (type: string) => {
     const map: Record<string, string> = {
@@ -33,10 +33,18 @@ const MessagesPage: React.FC = () => {
       prev.map(m => m.id === msg.id ? { ...m, read: true } : m)
     );
 
-    if (msg.type === 'appointment') {
+    if (msg.relatedType === 'appointment') {
+      Taro.switchTab({ url: '/pages/appointment/index' });
+    } else if (msg.relatedType === 'reminder') {
+      Taro.switchTab({ url: '/pages/reminders/index' });
+    } else if (msg.relatedType === 'record') {
+      Taro.switchTab({ url: '/pages/records/index' });
+    } else if (msg.relatedType === 'bill') {
+      Taro.switchTab({ url: '/pages/bills/index' });
+    } else if (msg.type === 'appointment') {
       Taro.switchTab({ url: '/pages/appointment/index' });
     } else if (msg.type === 'result') {
-      Taro.navigateTo({ url: '/pages/records/index' });
+      Taro.switchTab({ url: '/pages/records/index' });
     }
   };
 
@@ -75,6 +83,16 @@ const MessagesPage: React.FC = () => {
                 </View>
               </View>
               <Text className={styles.messageContent}>{msg.content}</Text>
+              {msg.relatedType && (
+                <View className={styles.messageRelated}>
+                  <Text className={styles.relatedText}>
+                    {msg.relatedType === 'appointment' && '查看预约 →'}
+                    {msg.relatedType === 'reminder' && '查看提醒 →'}
+                    {msg.relatedType === 'record' && '查看记录 →'}
+                    {msg.relatedType === 'bill' && '查看账单 →'}
+                  </Text>
+                </View>
+              )}
             </View>
           ))
         ) : (

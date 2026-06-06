@@ -84,9 +84,13 @@ export interface Reminder {
   type: 'medicine' | 'recheck' | 'vaccine';
   title: string;
   petName: string;
+  petId?: string;
   time: string;
   repeat: string;
   enabled: boolean;
+  relatedType?: 'appointment' | 'record';
+  relatedId?: string;
+  relatedInfo?: string;
 }
 
 export interface Bill {
@@ -97,6 +101,11 @@ export interface Bill {
   status: 'paid' | 'pending';
   items: BillItem[];
   invoiceAvailable: boolean;
+  invoiceStatus?: 'not_applied' | 'applied' | 'issued';
+  petId?: string;
+  petName?: string;
+  appointmentId?: string;
+  recordId?: string;
 }
 
 export interface BillItem {
@@ -112,4 +121,6 @@ export interface Message {
   content: string;
   time: string;
   read: boolean;
+  relatedId?: string;
+  relatedType?: 'appointment' | 'reminder' | 'record' | 'bill';
 }

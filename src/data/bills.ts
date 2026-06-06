@@ -13,7 +13,10 @@ export const billsData: Bill[] = [
       { name: '阿莫西林克拉维酸钾', price: 68, quantity: 2 },
       { name: '益生菌', price: 62, quantity: 2 }
     ],
-    invoiceAvailable: true
+    invoiceAvailable: true,
+    invoiceStatus: 'applied',
+    petId: '1',
+    petName: '豆豆'
   },
   {
     id: '2',
@@ -26,7 +29,10 @@ export const billsData: Bill[] = [
       { name: '狂犬疫苗', price: 80, quantity: 1 },
       { name: '体内外驱虫药', price: 68, quantity: 1 }
     ],
-    invoiceAvailable: true
+    invoiceAvailable: true,
+    invoiceStatus: 'issued',
+    petId: '2',
+    petName: '咪咪'
   },
   {
     id: '3',
@@ -41,7 +47,10 @@ export const billsData: Bill[] = [
       { name: '抗真菌药浴', price: 120, quantity: 2 },
       { name: '伊曲康唑', price: 86, quantity: 1 }
     ],
-    invoiceAvailable: false
+    invoiceAvailable: false,
+    invoiceStatus: 'not_applied',
+    petId: '3',
+    petName: '旺财'
   }
 ];
 

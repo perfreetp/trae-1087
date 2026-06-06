@@ -66,6 +66,77 @@
   padding: 0 $page-padding;
 }
 
+.todoSection {
+  margin-bottom: $spacing-lg;
+}
+
+.todoList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:active {
+    background: $color-bg-page;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1rpx solid $color-divider;
+  }
+}
+
+.todoIcon {
+  font-size: 36rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.todoContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.todoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.todoSubtitle {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+}
+
+.todoAction {
+  flex-shrink: 0;
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  margin-left: $spacing-md;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.todoActionText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
 .banner {
   width: 100%;
   height: 280rpx;

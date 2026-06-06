@@ -15,7 +15,7 @@ const tabOptions = [
 
 const PetDetailPage: React.FC = () => {
   const router = useRouter();
-  const { pets, updatePet } = useApp();
+  const { pets, updatePet, reminders, bills, appointments, savedPrescriptions } = useApp();
   const petId = router.params.id;
 
   const pet = pets.find(p => p.id === petId);
@@ -109,17 +109,60 @@ const PetDetailPage: React.FC = () => {
     updatePet(updatedPet);
   };
 
-  const handleExportSummary = () => {
+  const petReminders = useMemo(() => {
+    return reminders.filter(r => r.petId === pet.id || r.petName === pet.name);
+  }, [reminders, pet.id, pet.name]);
+
+  const activeRemindersCount = useMemo(() => {
+    return petReminders.filter(r => r.enabled).length;
+  }, [petReminders]);
+
+  const petBills = useMemo(() => {
+    return bills.filter(b => b.petId === pet.id || b.petName === pet.name);
+  }, [bills, pet.id, pet.name]);
+
+  const latestBill = useMemo(() => {
+    return petBills.length > 0 ? petBills[0] : null;
+  }, [petBills]);
+
+  const totalSpending = useMemo(() => {
+    return petBills.reduce((sum, bill) => sum + bill.amount, 0);
+  }, [petBills]);
+
+  const petAppointments = useMemo(() => {
+    return appointments.filter(a => a.petId === pet.id || a.petName === pet.name);
+  }, [appointments, pet.id, pet.name]);
+
+  const latestPrescription = useMemo(() => {
+    const petSaved = savedPrescriptions.filter(p => p.petName === pet.name);
+    if (petSaved.length > 0) return petSaved[0];
+
+    const petRecords = recordsData.filter(r => r.petId === pet.id && r.prescriptions.length > 0);
+    if (petRecords.length > 0) {
+      return {
+        date: petRecords[0].date,
+        prescriptions: petRecords[0].prescriptions,
+        doctorName: petRecords[0].doctorName
+      };
+    }
+    return null;
+  }, [savedPrescriptions, pet.id, pet.name]);
+
+  const handleExportSummary = (fullReport: boolean = false) => {
+    const content = fullReport
+      ? `确认导出 ${pet.name} 的完整健康报告吗？将包含：\n• 基本信息\n• 体重记录（${pet.weightRecords.length}条）\n• 过敏史（${pet.allergies.length}项）\n• 疫苗本（${pet.vaccineBook.length}张）\n• 预约记录（${petAppointments.length}条）\n• 就诊处方（${savedPrescriptions.filter(p => p.petName === pet.name).length + recordsData.filter(r => r.petId === pet.id).length}条）\n• 账单明细（${petBills.length}条，累计消费¥${totalSpending.toFixed(2)}）\n• 用药提醒（${petReminders.length}条）`
+      : `确认导出 ${pet.name} 的健康摘要吗？将包含基本信息、体重记录、过敏史、疫苗本信息。`;
+
     Taro.showModal({
-      title: '导出健康摘要',
-      content: `确认导出 ${pet.name} 的健康摘要吗？将包含基本信息、体重记录、过敏史、疫苗本信息。`,
+      title: fullReport ? '导出完整健康报告' : '导出健康摘要',
+      content,
       success: (res) => {
         if (res.confirm) {
           Taro.showLoading({ title: '导出中...' });
           setTimeout(() => {
             Taro.hideLoading();
             Taro.showToast({
-              title: '导出成功！已保存到相册',
+              title: fullReport ? '完整报告导出成功！' : '导出成功！已保存到相册',
               icon: 'success',
               duration: 2000
             });
@@ -268,8 +311,13 @@ const PetDetailPage: React.FC = () => {
               <View className={styles.summaryCard}>
                 <View className={styles.summaryHeader}>
                   <Text className={styles.summaryTitle}>健康摘要</Text>
-                  <View className={styles.exportBtn} onClick={handleExportSummary}>
-                    <Text className={styles.exportBtnText}>📤 导出</Text>
+                  <View className={styles.exportBtnRow}>
+                    <View className={styles.exportBtn} onClick={() => handleExportSummary(false)}>
+                      <Text className={styles.exportBtnText}>📤 导出摘要</Text>
+                    </View>
+                    <View className={`${styles.exportBtn} ${styles.exportBtnPrimary}`} onClick={() => handleExportSummary(true)}>
+                      <Text className={styles.exportBtnTextPrimary}>📄 完整报告</Text>
+                    </View>
                   </View>
                 </View>
 
@@ -333,6 +381,71 @@ const PetDetailPage: React.FC = () => {
                     </View>
                   ) : (
                     <Text className={styles.summaryEmpty}>暂无就诊记录</Text>
+                  )}
+                </View>
+
+                <View className={styles.summarySection}>
+                  <Text className={styles.summaryLabel}>💊 最近处方用药</Text>
+                  {latestPrescription ? (
+                    <View className={styles.summaryPrescription}>
+                      <Text className={styles.summaryPrescriptionDate}>
+                        {latestPrescription.date} · {latestPrescription.doctorName}
+                      </Text>
+                      <View className={styles.summaryPrescriptionList}>
+                        {latestPrescription.prescriptions.slice(0, 2).map((p: any, i: number) => (
+                          <Text key={i} className={styles.summaryPrescriptionItem}>
+                            • {p.name} ({p.dosage}, {p.frequency})
+                          </Text>
+                        ))}
+                        {latestPrescription.prescriptions.length > 2 && (
+                          <Text className={styles.summaryPrescriptionMore}>
+                            等 {latestPrescription.prescriptions.length} 种药品
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ) : (
+                    <Text className={styles.summaryEmpty}>暂无处方记录</Text>
+                  )}
+                </View>
+
+                <View className={styles.summarySection}>
+                  <Text className={styles.summaryLabel}>🔔 待完成提醒</Text>
+                  <View className={styles.summaryStats}>
+                    <View className={styles.summaryStat}>
+                      <Text className={styles.summaryStatValue}>{activeRemindersCount}</Text>
+                      <Text className={styles.summaryStatLabel}>进行中</Text>
+                    </View>
+                    <View className={styles.summaryStat}>
+                      <Text className={styles.summaryStatValue}>{petReminders.length - activeRemindersCount}</Text>
+                      <Text className={styles.summaryStatLabel}>已停用</Text>
+                    </View>
+                    <View className={styles.summaryStat}>
+                      <Text className={styles.summaryStatValue}>{petAppointments.length}</Text>
+                      <Text className={styles.summaryStatLabel}>预约记录</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View className={styles.summarySection}>
+                  <Text className={styles.summaryLabel}>💰 最近账单</Text>
+                  {latestBill ? (
+                    <View className={styles.summaryBill}>
+                      <View className={styles.summaryBillRow}>
+                        <Text className={styles.summaryBillLabel}>最近消费</Text>
+                        <Text className={styles.summaryBillValue}>¥{latestBill.amount.toFixed(2)}</Text>
+                      </View>
+                      <View className={styles.summaryBillRow}>
+                        <Text className={styles.summaryBillLabel}>累计消费</Text>
+                        <Text className={styles.summaryBillValue}>¥{totalSpending.toFixed(2)}</Text>
+                      </View>
+                      <View className={styles.summaryBillRow}>
+                        <Text className={styles.summaryBillLabel}>账单数量</Text>
+                        <Text className={styles.summaryBillValue}>{petBills.length} 笔</Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <Text className={styles.summaryEmpty}>暂无账单记录</Text>
                   )}
                 </View>
               </View>
