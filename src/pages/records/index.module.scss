@@ -17,10 +17,6 @@
   margin-bottom: $spacing-md;
   box-shadow: $shadow-card;
   transition: all $transition-base;
-
-  &:active {
-    transform: scale(0.98);
-  }
 }
 
 .recordHeader {
@@ -81,23 +77,214 @@
   margin-left: $spacing-xs;
 }
 
-.detailBtn {
-  @include button-reset;
-  height: $button-height-sm;
-  padding: 0 $spacing-lg;
-  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
-  border-radius: $radius-button;
+.expandText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
 
-  &:active {
-    opacity: 0.9;
-    transform: scale(0.98);
+.recordDetail {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.detailSection {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 
-.detailBtnText {
+.detailTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.detailTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.detailContent {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.savedTag {
+  font-size: $font-size-sm;
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: $radius-button;
+}
+
+.saveBtn {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: rgba(33, 150, 243, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.checkItem {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.checkName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.checkStatus {
+  font-size: $font-size-xs;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.statusNormal {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.statusAbnormal {
+  color: $color-error;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.checkResultRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkResult {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.checkRef {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.prescriptionItem {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.prescriptionName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.prescriptionInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.prescriptionInfoItem {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.rateSection {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.rateStars {
+  display: flex;
+  margin-bottom: $spacing-md;
+}
+
+.rateStar {
+  font-size: 48rpx;
+  color: $color-warning;
+  margin-right: $spacing-sm;
+
+  &:active {
+    transform: scale(1.2);
+  }
+}
+
+.rateInput {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-md;
+}
+
+.rateActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+}
+
+.rateCancel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  padding: $spacing-sm $spacing-md;
+}
+
+.rateSubmit {
   font-size: $font-size-sm;
   color: $color-text-white;
-  font-weight: $font-weight-medium;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-sm $spacing-xl;
+  border-radius: $radius-button;
+}
+
+.rateBtn {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  text-decoration: underline;
+}
+
+.ratedSection {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.ratedComment {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: $spacing-sm;
+  line-height: 1.6;
 }
 
 .emptyTip {

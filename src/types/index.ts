@@ -60,6 +60,7 @@ export interface MedicalRecord {
   prescriptions: Prescription[];
   rating?: number;
   comment?: string;
+  reviewCount?: number;
 }
 
 export interface CheckResult {

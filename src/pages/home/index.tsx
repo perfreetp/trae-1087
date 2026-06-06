@@ -30,7 +30,7 @@ const HomePage: React.FC = () => {
     { icon: '💰', text: '费用账单', color: 'rgba(156, 39, 176, 0.1)', path: '/pages/bills/index' },
     { icon: '💉', text: '疫苗本', color: 'rgba(0, 188, 212, 0.1)', path: '/pages/pets/index' },
     { icon: '📊', text: '健康报告', color: 'rgba(255, 193, 7, 0.1)', path: '/pages/records/index' },
-    { icon: '📍', text: '附近门店', color: 'rgba(76, 175, 80, 0.1)', path: '' },
+    { icon: '📍', text: '附近门店', color: 'rgba(76, 175, 80, 0.1)', path: '/pages/clinics/index' },
   ];
 
   const handleQuickAction = (path: string) => {

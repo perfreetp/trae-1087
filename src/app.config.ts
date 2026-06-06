@@ -11,7 +11,8 @@ export default defineAppConfig({
     'pages/pet-add/index',
     'pages/pet-detail/index',
     'pages/appointment-detail/index',
-    'pages/doctor-detail/index'
+    'pages/doctor-detail/index',
+    'pages/clinics/index'
   ],
   window: {
     backgroundTextStyle: 'light',

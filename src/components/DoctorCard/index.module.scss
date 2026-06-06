@@ -8,11 +8,17 @@
   box-shadow: $shadow-card;
   margin-bottom: $spacing-md;
   transition: all $transition-base;
+  border: 2rpx solid transparent;
 
   &:active {
     transform: scale(0.98);
     box-shadow: $shadow-card-hover;
   }
+}
+
+.doctorCardSelected {
+  border-color: $color-primary;
+  background: rgba(33, 150, 243, 0.05);
 }
 
 .avatar {

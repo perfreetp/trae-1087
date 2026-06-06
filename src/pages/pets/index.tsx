@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import PetCard from '@/components/PetCard';
-import { petsData } from '@/data/pets';
 import { remindersData } from '@/data/bills';
 import { recordsData } from '@/data/records';
+import { useApp } from '@/store';
 
 const PetsPage: React.FC = () => {
-  const [pets, setPets] = useState(petsData);
+  const { pets } = useApp();
 
   const handleAddPet = () => {
     Taro.navigateTo({

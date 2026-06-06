@@ -1,29 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Input, Textarea } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import DoctorCard from '@/components/DoctorCard';
-import { doctorsData, departments, timeSlots } from '@/data/doctors';
-import { appointmentsData } from '@/data/appointments';
-import { petsData } from '@/data/pets';
+import { departments, timeSlots } from '@/data/doctors';
 import { Appointment } from '@/types';
+import { useApp } from '@/store';
 
 const AppointmentPage: React.FC = () => {
+  const router = useRouter();
+  const { doctors, pets, appointments, addAppointment, setAppointments } = useApp();
+
   const [activeTab, setActiveTab] = useState(0);
   const [selectedDept, setSelectedDept] = useState('all');
-  const [myAppointments, setMyAppointments] = useState<Appointment[]>([]);
-
   const [selectedPet, setSelectedPet] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [symptoms, setSymptoms] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState<string>('');
 
   useEffect(() => {
-    setMyAppointments(appointmentsData);
-    if (petsData.length > 0) {
-      setSelectedPet(petsData[0].id);
+    if (pets.length > 0 && !selectedPet) {
+      setSelectedPet(pets[0].id);
     }
-  }, []);
+    if (router.params.doctorId) {
+      setSelectedDoctor(router.params.doctorId);
+      setActiveTab(1);
+    }
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setSelectedDate(tomorrow.toISOString().split('T')[0]);
+  }, [pets, router.params.doctorId]);
 
   const tabs = ['我的预约', '预约挂号'];
 
@@ -42,7 +49,8 @@ const AppointmentPage: React.FC = () => {
     const map: Record<string, string> = {
       pending: styles.statusPending,
       confirmed: styles.statusConfirmed,
-      completed: styles.statusCompleted
+      completed: styles.statusCompleted,
+      cancelled: styles.statusCompleted
     };
     return map[status] || '';
   };
@@ -59,7 +67,7 @@ const AppointmentPage: React.FC = () => {
       content: '确定要取消这个预约吗？',
       success: (res) => {
         if (res.confirm) {
-          setMyAppointments(prev =>
+          setAppointments(prev =>
             prev.map(a => a.id === id ? { ...a, status: 'cancelled' as const } : a)
           );
           Taro.showToast({ title: '已取消', icon: 'success' });
@@ -69,8 +77,8 @@ const AppointmentPage: React.FC = () => {
   };
 
   const filteredDoctors = selectedDept === 'all'
-    ? doctorsData
-    : doctorsData.filter(d => {
+    ? doctors
+    : doctors.filter(d => {
         const deptMap: Record<string, string> = {
           internal: '内科',
           surgery: '外科',
@@ -81,26 +89,66 @@ const AppointmentPage: React.FC = () => {
         return d.department === deptMap[selectedDept];
       });
 
+  const handleDoctorSelect = (doctorId: string) => {
+    setSelectedDoctor(doctorId);
+  };
+
   const handleSubmit = () => {
-    if (!selectedPet || !selectedTime || !symptoms || !selectedDoctor) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!selectedPet) {
+      Taro.showToast({ title: '请选择宠物', icon: 'none' });
       return;
     }
+    if (!selectedDoctor) {
+      Taro.showToast({ title: '请选择医生', icon: 'none' });
+      return;
+    }
+    if (!selectedTime) {
+      Taro.showToast({ title: '请选择时段', icon: 'none' });
+      return;
+    }
+    if (!symptoms.trim()) {
+      Taro.showToast({ title: '请填写症状描述', icon: 'none' });
+      return;
+    }
+
+    const doctor = doctors.find(d => d.id === selectedDoctor);
+    const pet = pets.find(p => p.id === selectedPet);
+
+    if (!doctor || !pet) return;
+
+    const newAppt: Appointment = {
+      id: Date.now().toString(),
+      petId: pet.id,
+      petName: pet.name,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      department: doctor.department,
+      date: selectedDate,
+      timeSlot: selectedTime,
+      status: 'pending',
+      queueNumber: Math.floor(Math.random() * 20) + 1,
+      symptoms: symptoms.trim(),
+      createdAt: new Date().toLocaleString('zh-CN')
+    };
+
     Taro.showModal({
       title: '确认预约',
-      content: '确认提交预约信息吗？',
+      content: `确认预约 ${doctor.name} ${selectedDate} ${selectedTime} 的门诊吗？`,
       success: (res) => {
         if (res.confirm) {
+          addAppointment(newAppt);
           Taro.showToast({ title: '预约成功', icon: 'success' });
+          setSelectedTime('');
+          setSymptoms('');
           setActiveTab(0);
         }
       }
     });
   };
 
-  const handleDoctorSelect = (doctorId: string) => {
-    setSelectedDoctor(doctorId);
-  };
+  const sortedAppointments = [...appointments].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   return (
     <View className={styles.page}>
@@ -120,8 +168,8 @@ const AppointmentPage: React.FC = () => {
         <ScrollView scrollY>
           <View className={styles.content}>
             <View className={styles.myAppointments}>
-              {myAppointments.length > 0 ? (
-                myAppointments.map(appt => (
+              {sortedAppointments.length > 0 ? (
+                sortedAppointments.map(appt => (
                   <View
                     key={appt.id}
                     className={styles.apptCard}
@@ -153,19 +201,17 @@ const AppointmentPage: React.FC = () => {
                       </View>
                     )}
                     <View className={styles.apptFooter}>
-                      {appt.status === 'pending' || appt.status === 'confirmed' ? (
+                      {(appt.status === 'pending' || appt.status === 'confirmed') && (
                         <View
                           className={styles.apptBtn}
                           onClick={(e) => { e.stopPropagation(); handleCancel(appt.id); }}
                         >
                           <Text className={styles.apptBtnText}>取消预约</Text>
                         </View>
-                      ) : null}
-                      {appt.status === 'completed' && (
-                        <View className={`${styles.apptBtn} ${styles.apptBtnPrimary}`}>
-                          <Text className={styles.apptBtnTextPrimary}>查看详情</Text>
-                        </View>
                       )}
+                      <View className={`${styles.apptBtn} ${styles.apptBtnPrimary}`}>
+                        <Text className={styles.apptBtnTextPrimary}>查看详情</Text>
+                      </View>
                     </View>
                   </View>
                 ))
@@ -197,6 +243,9 @@ const AppointmentPage: React.FC = () => {
 
             <View className={styles.sectionHeader}>
               <Text className={styles.sectionTitle}>选择医生</Text>
+              {selectedDoctor && (
+                <Text style={{ fontSize: 24, color: '#2196F3' }}>已选中</Text>
+              )}
             </View>
 
             <View className={styles.doctorList}>
@@ -205,7 +254,9 @@ const AppointmentPage: React.FC = () => {
                   key={doctor.id}
                   doctor={doctor}
                   showAction={false}
-                  onAction={() => handleDoctorSelect(doctor.id)}
+                  selectable
+                  selected={selectedDoctor === doctor.id}
+                  onSelect={handleDoctorSelect}
                 />
               ))}
             </View>
@@ -214,7 +265,7 @@ const AppointmentPage: React.FC = () => {
               <View className={styles.formItem}>
                 <Text className={styles.formLabel}>选择宠物</Text>
                 <View className={styles.petSelect}>
-                  {petsData.map(pet => (
+                  {pets.map(pet => (
                     <Text
                       key={pet.id}
                       className={`${styles.petOption} ${selectedPet === pet.id ? styles.petOptionActive : ''}`}
@@ -223,6 +274,13 @@ const AppointmentPage: React.FC = () => {
                       {pet.name}
                     </Text>
                   ))}
+                </View>
+              </View>
+
+              <View className={styles.formItem}>
+                <Text className={styles.formLabel}>预约日期</Text>
+                <View className={styles.formInput}>
+                  <Text>{selectedDate}</Text>
                 </View>
               </View>
 

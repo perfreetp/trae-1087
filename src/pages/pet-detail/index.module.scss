@@ -3,32 +3,281 @@
 .page {
   min-height: 100vh;
   background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding $spacing-xl * 2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: $page-padding;
 }
 
-.container {
-  text-align: center;
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  font-size: 80rpx;
+  margin-right: $spacing-lg;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
 }
 
-.icon {
-  font-size: 160rpx;
+.avatarImage {
+  width: 100%;
+  height: 100%;
+}
+
+.petInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.petName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
   display: block;
-  margin-bottom: $spacing-lg;
+  margin-bottom: $spacing-xs;
+}
+
+.petMeta {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.content {
+  padding: 0 $page-padding;
+  margin-top: -$spacing-lg;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionAction {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.infoGrid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.infoItem {
+  width: 50%;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.weightList {
+  display: flex;
+  flex-direction: column;
+}
+
+.weightItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.weightDate {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.weightValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.weightAdd {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.weightInput {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+}
+
+.weightAddBtn {
+  @include button-reset;
+  height: 72rpx;
+  padding: 0 $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-md;
+}
+
+.weightAddBtnText {
+  font-size: $font-size-sm;
+  color: #fff;
+  font-weight: $font-weight-medium;
+}
+
+.allergyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.allergyTag {
+  display: flex;
+  align-items: center;
+  padding: 8rpx $spacing-md;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: $radius-button;
+}
+
+.allergyTagText {
+  font-size: $font-size-sm;
+  color: $color-error;
+  margin-right: $spacing-sm;
+}
+
+.allergyTagClose {
+  font-size: $font-size-sm;
+  color: $color-error;
+  line-height: 1;
+}
+
+.allergyInputWrap {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.allergyInput {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+}
+
+.allergyAddBtn {
+  @include button-reset;
+  height: 72rpx;
+  padding: 0 $spacing-lg;
+  background: $color-primary;
+  border-radius: $radius-md;
+}
+
+.allergyAddBtnText {
+  font-size: $font-size-sm;
+  color: #fff;
+  font-weight: $font-weight-medium;
+}
+
+.emptyAllergy {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.vaccineList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.vaccineItem {
+  width: calc(33.33% - 16rpx);
+  aspect-ratio: 1;
+  border-radius: $radius-md;
+  overflow: hidden;
+  position: relative;
+}
+
+.vaccineImage {
+  width: 100%;
+  height: 100%;
+}
+
+.vaccineDelete {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(244, 67, 54, 0.9);
+  border-radius: 50%;
+  @include flex-center;
+}
+
+.vaccineDeleteText {
+  font-size: 24rpx;
+  color: #fff;
+  line-height: 1;
+}
+
+.vaccineAdd {
+  width: calc(33.33% - 16rpx);
+  aspect-ratio: 1;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-md;
+  @include flex-center;
+  flex-direction: column;
+  background: $color-bg-page;
+}
+
+.vaccineAddIcon {
+  font-size: 48rpx;
   opacity: 0.5;
 }
 
-.title {
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-  display: block;
-  margin-bottom: $spacing-sm;
-}
-
-.desc {
-  font-size: $font-size-md;
+.vaccineAddText {
+  font-size: $font-size-xs;
   color: $color-text-tertiary;
+  margin-top: $spacing-xs;
 }

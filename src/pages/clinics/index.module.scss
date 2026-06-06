@@ -1,0 +1,125 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.clinicCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.clinicHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.clinicIcon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  @include flex-center;
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.clinicInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.clinicName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.clinicDistance {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: rgba(33, 150, 243, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  display: inline-block;
+}
+
+.clinicItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.clinicItemIcon {
+  font-size: $font-size-sm;
+  margin-right: $spacing-sm;
+  width: 32rpx;
+  flex-shrink: 0;
+}
+
+.clinicItemText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  flex: 1;
+  line-height: 1.6;
+}
+
+.clinicActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.actionBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.actionBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actionBtnTextPrimary {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}

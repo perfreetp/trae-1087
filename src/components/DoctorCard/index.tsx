@@ -8,13 +8,27 @@ interface DoctorCardProps {
   doctor: Doctor;
   showAction?: boolean;
   onAction?: () => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelect?: (doctorId: string) => void;
 }
 
-const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, showAction = true, onAction }) => {
+const DoctorCard: React.FC<DoctorCardProps> = ({ 
+  doctor, 
+  showAction = true, 
+  onAction, 
+  selectable = false,
+  selected = false,
+  onSelect
+}) => {
   const handleClick = () => {
-    Taro.navigateTo({
-      url: `/pages/doctor-detail/index?id=${doctor.id}`
-    });
+    if (selectable && onSelect) {
+      onSelect(doctor.id);
+    } else {
+      Taro.navigateTo({
+        url: `/pages/doctor-detail/index?id=${doctor.id}`
+      });
+    }
   };
 
   const handleAction = (e: React.MouseEvent) => {
@@ -29,7 +43,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, showAction = true, onAc
   };
 
   return (
-    <View className={styles.doctorCard} onClick={handleClick}>
+    <View className={`${styles.doctorCard} ${selected ? styles.doctorCardSelected : ''}`} onClick={handleClick}>
       <Image className={styles.avatar} src={doctor.avatar} mode="aspectFill" />
       <View className={styles.info}>
         <View className={styles.header}>
