@@ -1,0 +1,314 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(33, 150, 243, 0.08) 0%, $color-bg-page 300rpx);
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: $spacing-xl $page-padding $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.welcome {
+  flex: 1;
+}
+
+.greeting {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.messageBtn {
+  position: relative;
+  width: 72rpx;
+  height: 72rpx;
+  background: $color-bg-card;
+  border-radius: $radius-round;
+  @include flex-center;
+  box-shadow: $shadow-card;
+}
+
+.messageIcon {
+  font-size: 36rpx;
+}
+
+.badge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  background: $color-error;
+  border-radius: $radius-round;
+  @include flex-center;
+  padding: 0 8rpx;
+}
+
+.badgeText {
+  font-size: 20rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: 0 $page-padding;
+}
+
+.banner {
+  width: 100%;
+  height: 280rpx;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-xl;
+  overflow: hidden;
+  position: relative;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+}
+
+.bannerOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-lg;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+
+.bannerTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  display: block;
+}
+
+.bannerDesc {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.quickGrid {
+  display: flex;
+  flex-wrap: wrap;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg $spacing-md;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow-card;
+}
+
+.quickItem {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md 0;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.quickIcon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-lg;
+  @include flex-center;
+  margin-bottom: $spacing-sm;
+  font-size: 40rpx;
+}
+
+.quickText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.emergencyCard {
+  background: linear-gradient(135deg, #F44336 0%, #FF5722 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.emergencyInfo {
+  flex: 1;
+}
+
+.emergencyTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.emergencyDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.emergencyBtn {
+  @include button-reset;
+  height: $button-height-md;
+  padding: 0 $spacing-xl;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+}
+
+.emergencyBtnText {
+  font-size: $font-size-md;
+  color: $color-error;
+  font-weight: $font-weight-semibold;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionMore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.appointmentCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.apptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.apptStatus {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.statusConfirmed {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.statusPending {
+  color: $color-warning;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.apptDoctor {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.apptInfo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.apptInfoItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.apptIcon {
+  font-size: $font-size-sm;
+  margin-right: 8rpx;
+}
+
+.queueBox {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.queueInfo {
+  display: flex;
+  align-items: baseline;
+}
+
+.queueNumber {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-right: $spacing-sm;
+}
+
+.queueLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.queueTip {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.doctorList {
+  margin-bottom: $spacing-xl;
+}
+
+.emptyTip {
+  text-align: center;
+  padding: $spacing-xl;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

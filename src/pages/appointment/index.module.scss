@@ -1,0 +1,368 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  padding: $spacing-sm $page-padding;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md 0;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  position: relative;
+  transition: all $transition-base;
+}
+
+.tabActive {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.content {
+  padding: 0 $page-padding;
+}
+
+.departmentScroll {
+  margin: $spacing-lg 0;
+  white-space: nowrap;
+}
+
+.departmentItem {
+  display: inline-block;
+  padding: $spacing-sm $spacing-lg;
+  margin-right: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.departmentActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+}
+
+.myAppointments {
+  margin-bottom: $spacing-xl;
+}
+
+.apptCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.apptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.apptPet {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.apptStatus {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.statusPending {
+  color: $color-warning;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.statusConfirmed {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.statusCompleted {
+  color: $color-text-tertiary;
+  background: $color-bg-page;
+}
+
+.apptInfo {
+  margin-bottom: $spacing-md;
+}
+
+.apptInfoRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.apptInfoIcon {
+  font-size: $font-size-sm;
+  margin-right: $spacing-sm;
+}
+
+.apptInfoText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.apptFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.apptBtn {
+  @include button-reset;
+  height: $button-height-sm;
+  padding: 0 $spacing-lg;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.apptBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.apptBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.apptBtnTextPrimary {
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.queueBox {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: rgba(33, 150, 243, 0.08);
+  border-radius: $radius-md;
+  margin-top: $spacing-md;
+}
+
+.queueNumber {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-right: $spacing-md;
+}
+
+.queueInfo {
+  flex: 1;
+}
+
+.queueLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+}
+
+.queueTip {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: $spacing-lg 0 $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.doctorList {
+  margin-bottom: $spacing-xl;
+}
+
+.bookForm {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+}
+
+.petSelect {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.petOption {
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.petOptionActive {
+  background: rgba(33, 150, 243, 0.1);
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
+.timeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.timeSlot {
+  width: calc(25% - 12rpx);
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.timeSlotActive {
+  background: rgba(33, 150, 243, 0.1);
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
+.timeSlotDisabled {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.submitBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  margin-top: $spacing-xl;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitBtnText {
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.emptyTip {
+  text-align: center;
+  padding: $spacing-xl * 2;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}

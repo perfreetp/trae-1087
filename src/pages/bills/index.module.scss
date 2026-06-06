@@ -1,0 +1,169 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.summaryCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl * 1.5 $page-padding;
+}
+
+.summaryLabel {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.summaryAmount {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  line-height: 1.2;
+}
+
+.summaryUnit {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: 0 $page-padding;
+  margin-top: -$spacing-lg;
+}
+
+.billCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.billHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.billType {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.billStatus {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.statusPaid {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.statusPending {
+  color: $color-warning;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.billDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.billItems {
+  margin-bottom: $spacing-md;
+}
+
+.billItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.billItemName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.billItemPrice {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.billFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.billAmount {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+}
+
+.billActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.billBtn {
+  @include button-reset;
+  height: $button-height-sm;
+  padding: 0 $spacing-md;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.billBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.billBtnText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.billBtnTextPrimary {
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.emptyTip {
+  text-align: center;
+  padding: $spacing-xl * 3;
+}
+
+.emptyIcon {
+  font-size: 160rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
