@@ -6,8 +6,148 @@
   padding-bottom: 120rpx;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg $page-padding $spacing-md;
+}
+
+.headerTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.savedPrescriptionBtn {
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.savedPrescriptionBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.savedPrescriptionsPanel {
+  margin: 0 $page-padding $spacing-md;
+  padding: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.panelTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.panelClose {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.savedCard {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.savedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.savedPet {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.savedDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.savedDoctor {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.savedDiagnosis {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.savedPrescriptionList {
+  border-top: 1rpx solid $color-divider;
+  padding-top: $spacing-md;
+}
+
+.savedPrescriptionItem {
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.savedPrescriptionName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.savedPrescriptionInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.savedPrescriptionInfo Text {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.emptyPanel {
+  text-align: center;
+  padding: $spacing-xl;
+}
+
+.emptyPanelText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
 .content {
-  padding: $spacing-lg $page-padding;
+  padding: 0 $page-padding $spacing-lg;
 }
 
 .recordCard {

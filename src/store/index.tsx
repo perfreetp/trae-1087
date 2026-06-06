@@ -13,6 +13,10 @@ interface AppContextType {
   reminders: Reminder[];
   setReminders: React.Dispatch<React.SetStateAction<Reminder[]>>;
   doctors: Doctor[];
+  selectedDoctorForAppointment: string | null;
+  setSelectedDoctorForAppointment: (id: string | null) => void;
+  savedPrescriptions: { id: string; recordId: string; petName: string; doctorName: string; date: string; prescriptions: any[] }[];
+  addSavedPrescription: (prescription: any) => void;
   addPet: (pet: Pet) => void;
   updatePet: (pet: Pet) => void;
   addAppointment: (appt: Appointment) => void;
@@ -26,6 +30,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [appointments, setAppointments] = useState<Appointment[]>(appointmentsData);
   const [reminders, setReminders] = useState<Reminder[]>(remindersData);
   const [doctors] = useState<Doctor[]>(doctorsData);
+  const [selectedDoctorForAppointment, setSelectedDoctorForAppointment] = useState<string | null>(null);
+  const [savedPrescriptions, setSavedPrescriptions] = useState<any[]>([]);
 
   const addPet = (pet: Pet) => {
     setPets(prev => [...prev, pet]);
@@ -43,12 +49,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setReminders(prev => [reminder, ...prev]);
   };
 
+  const addSavedPrescription = (prescription: any) => {
+    setSavedPrescriptions(prev => {
+      const exists = prev.find(p => p.recordId === prescription.recordId);
+      if (exists) return prev;
+      return [...prev, prescription];
+    });
+  };
+
   return (
     <AppContext.Provider value={{
       pets, setPets,
       appointments, setAppointments,
       reminders, setReminders,
       doctors,
+      selectedDoctorForAppointment,
+      setSelectedDoctorForAppointment,
+      savedPrescriptions,
+      addSavedPrescription,
       addPet, updatePet,
       addAppointment,
       addReminder

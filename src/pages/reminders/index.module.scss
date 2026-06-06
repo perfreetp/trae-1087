@@ -38,6 +38,36 @@
   font-weight: $font-weight-medium;
 }
 
+.filterBar {
+  padding: 0 $page-padding $spacing-md;
+}
+
+.filterScroll {
+  white-space: nowrap;
+}
+
+.filterChip {
+  display: inline-block;
+  padding: $spacing-xs $spacing-lg;
+  margin-right: $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.filterChipActive {
+  background: rgba(33, 150, 243, 0.1);
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
 .content {
   padding: 0 $page-padding;
 }
@@ -48,6 +78,12 @@
   padding: $spacing-lg;
   margin-bottom: $spacing-md;
   box-shadow: $shadow-card;
+  transition: all $transition-base;
+}
+
+.reminderDisabled {
+  opacity: 0.6;
+  background: $color-bg-page;
 }
 
 .reminderHeader {
@@ -94,6 +130,25 @@
 .reminderPet {
   font-size: $font-size-sm;
   color: $color-text-secondary;
+}
+
+.reminderRelated {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.disabledTag {
+  padding: 4rpx 16rpx;
+  background: rgba(134, 144, 156, 0.1);
+  border-radius: $radius-xs;
+  margin-left: $spacing-sm;
+}
+
+.disabledTagText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
 }
 
 .reminderTime {
@@ -267,6 +322,41 @@
   background: rgba(33, 150, 243, 0.1);
   color: $color-primary;
   border-color: $color-primary;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.optionRowActive {
+  background: rgba(33, 150, 243, 0.1);
+  color: $color-primary;
+  border-color: $color-primary;
+}
+
+.optionCheck {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
 }
 
 .timeGrid {

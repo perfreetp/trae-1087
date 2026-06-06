@@ -3,12 +3,11 @@
 .page {
   min-height: 100vh;
   background: $color-bg-page;
-  padding-bottom: 120rpx;
 }
 
 .header {
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
-  padding: $spacing-xl $page-padding $spacing-xl * 2;
+  padding: $spacing-xl $page-padding $spacing-lg;
   display: flex;
   align-items: center;
 }
@@ -16,14 +15,10 @@
 .avatar {
   width: 160rpx;
   height: 160rpx;
-  border-radius: $radius-round;
-  background: rgba(255, 255, 255, 0.2);
-  @include flex-center;
-  font-size: 80rpx;
-  margin-right: $spacing-lg;
-  flex-shrink: 0;
+  border-radius: 50%;
   overflow: hidden;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border: 6rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: $spacing-lg;
 }
 
 .avatarImage {
@@ -33,11 +28,10 @@
 
 .petInfo {
   flex: 1;
-  min-width: 0;
 }
 
 .petName {
-  font-size: $font-size-xxl;
+  font-size: $font-size-xl;
   font-weight: $font-weight-bold;
   color: $color-text-white;
   display: block;
@@ -46,14 +40,55 @@
 
 .petMeta {
   font-size: $font-size-sm;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.85);
   display: block;
   margin-bottom: 4rpx;
 }
 
-.content {
+.tabs {
+  display: flex;
+  background: $color-bg-card;
   padding: 0 $page-padding;
-  margin-top: -$spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  position: relative;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.tabActive {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.scrollContent {
+  height: calc(100vh - 260rpx);
+}
+
+.content {
+  padding: $spacing-lg $page-padding 120rpx;
 }
 
 .section {
@@ -69,52 +104,43 @@
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   margin-bottom: $spacing-md;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sectionAction {
-  font-size: $font-size-sm;
-  color: $color-primary;
+  display: block;
 }
 
 .infoGrid {
   display: flex;
   flex-wrap: wrap;
+  gap: $spacing-md;
 }
 
 .infoItem {
-  width: 50%;
-  margin-bottom: $spacing-md;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  width: calc(50% - 12rpx);
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
 }
 
 .infoLabel {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
-  margin-bottom: $spacing-xs;
   display: block;
+  margin-bottom: $spacing-xs;
 }
 
 .infoValue {
-  font-size: $font-size-md;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
-  font-weight: $font-weight-medium;
 }
 
 .weightList {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: $spacing-lg;
 }
 
 .weightItem {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: $spacing-md 0;
   border-bottom: 1rpx solid $color-divider;
 
@@ -124,6 +150,7 @@
 }
 
 .weightDate {
+  flex: 1;
   font-size: $font-size-sm;
   color: $color-text-secondary;
 }
@@ -131,37 +158,55 @@
 .weightValue {
   font-size: $font-size-md;
   font-weight: $font-weight-semibold;
-  color: $color-primary;
+  color: $color-text-primary;
+  margin-right: $spacing-sm;
+}
+
+.weightChange {
+  font-size: $font-size-xs;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.weightUp {
+  color: $color-error;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.weightDown {
+  color: $color-success;
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .weightAdd {
   display: flex;
-  gap: $spacing-sm;
-  margin-top: $spacing-md;
-  padding-top: $spacing-md;
-  border-top: 1rpx solid $color-divider;
+  gap: $spacing-md;
 }
 
 .weightInput {
   flex: 1;
-  height: 72rpx;
+  height: 80rpx;
   padding: 0 $spacing-md;
   background: $color-bg-page;
   border-radius: $radius-md;
-  font-size: $font-size-sm;
+  font-size: $font-size-md;
 }
 
 .weightAddBtn {
   @include button-reset;
-  height: 72rpx;
-  padding: 0 $spacing-lg;
+  width: 160rpx;
+  height: 80rpx;
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
   border-radius: $radius-md;
+
+  &:active {
+    opacity: 0.9;
+  }
 }
 
 .weightAddBtnText {
+  color: $color-text-white;
   font-size: $font-size-sm;
-  color: #fff;
   font-weight: $font-weight-medium;
 }
 
@@ -169,12 +214,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
+  margin-bottom: $spacing-md;
 }
 
 .allergyTag {
   display: flex;
   align-items: center;
-  padding: 8rpx $spacing-md;
+  padding: $spacing-xs $spacing-sm;
   background: rgba(244, 67, 54, 0.1);
   border-radius: $radius-button;
 }
@@ -182,19 +228,24 @@
 .allergyTagText {
   font-size: $font-size-sm;
   color: $color-error;
-  margin-right: $spacing-sm;
+  margin-right: $spacing-xs;
 }
 
 .allergyTagClose {
-  font-size: $font-size-sm;
+  font-size: $font-size-md;
   color: $color-error;
   line-height: 1;
 }
 
+.emptyAllergy {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-md;
+}
+
 .allergyInputWrap {
   display: flex;
-  gap: $spacing-sm;
-  margin-top: $spacing-md;
+  gap: $spacing-md;
 }
 
 .allergyInput {
@@ -208,35 +259,33 @@
 
 .allergyAddBtn {
   @include button-reset;
+  width: 120rpx;
   height: 72rpx;
-  padding: 0 $spacing-lg;
   background: $color-primary;
   border-radius: $radius-md;
+
+  &:active {
+    opacity: 0.9;
+  }
 }
 
 .allergyAddBtnText {
+  color: $color-text-white;
   font-size: $font-size-sm;
-  color: #fff;
-  font-weight: $font-weight-medium;
-}
-
-.emptyAllergy {
-  font-size: $font-size-sm;
-  color: $color-text-tertiary;
 }
 
 .vaccineList {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-md;
+  gap: $spacing-sm;
 }
 
 .vaccineItem {
   width: calc(33.33% - 16rpx);
   aspect-ratio: 1;
+  position: relative;
   border-radius: $radius-md;
   overflow: hidden;
-  position: relative;
 }
 
 .vaccineImage {
@@ -250,34 +299,181 @@
   right: 8rpx;
   width: 40rpx;
   height: 40rpx;
-  background: rgba(244, 67, 54, 0.9);
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
-  @include flex-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.8;
+  }
 }
 
 .vaccineDeleteText {
-  font-size: 24rpx;
-  color: #fff;
+  color: $color-text-white;
+  font-size: $font-size-md;
   line-height: 1;
 }
 
 .vaccineAdd {
   width: calc(33.33% - 16rpx);
   aspect-ratio: 1;
-  border: 2rpx dashed $color-border;
+  border: 2rpx dashed $color-divider;
   border-radius: $radius-md;
-  @include flex-center;
+  display: flex;
   flex-direction: column;
-  background: $color-bg-page;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    border-color: $color-primary;
+  }
 }
 
 .vaccineAddIcon {
-  font-size: 48rpx;
-  opacity: 0.5;
+  font-size: 64rpx;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
 }
 
 .vaccineAddText {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
+}
+
+.summaryCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.summaryTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.exportBtn {
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.exportBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+}
+
+.summarySection {
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.summaryLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.summaryWeight {
+  text-align: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.summaryWeightValue {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+}
+
+.summaryWeightChange {
+  font-size: $font-size-sm;
   margin-top: $spacing-xs;
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+}
+
+.summaryWeightDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+  display: block;
+}
+
+.summaryEmpty {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding: $spacing-md 0;
+}
+
+.summaryTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.summaryTag {
+  padding: $spacing-xs $spacing-md;
+  background: rgba(244, 67, 54, 0.1);
+  color: $color-error;
+  font-size: $font-size-sm;
+  border-radius: $radius-button;
+}
+
+.summaryValue {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.summaryRecord {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.summaryRecordRow {
+  display: flex;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.summaryRecordLabel {
+  width: 80rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.summaryRecordValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
 }

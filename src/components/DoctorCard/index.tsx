@@ -3,6 +3,7 @@ import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { Doctor } from '@/types';
+import { useApp } from '@/store';
 
 interface DoctorCardProps {
   doctor: Doctor;
@@ -21,6 +22,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
   selected = false,
   onSelect
 }) => {
+  const { setSelectedDoctorForAppointment } = useApp();
+
   const handleClick = () => {
     if (selectable && onSelect) {
       onSelect(doctor.id);
@@ -36,8 +39,9 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     if (onAction) {
       onAction();
     } else {
-      Taro.navigateTo({
-        url: `/pages/appointment/index?doctorId=${doctor.id}`
+      setSelectedDoctorForAppointment(doctor.id);
+      Taro.switchTab({
+        url: '/pages/appointment/index'
       });
     }
   };

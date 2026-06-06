@@ -34,7 +34,7 @@ const reviewsData = [
 
 const DoctorDetailPage: React.FC = () => {
   const router = useRouter();
-  const { doctors } = useApp();
+  const { doctors, setSelectedDoctorForAppointment } = useApp();
   const doctorId = router.params.id;
 
   const doctor = doctors.find(d => d.id === doctorId);
@@ -50,8 +50,9 @@ const DoctorDetailPage: React.FC = () => {
   }
 
   const handleAppointment = () => {
-    Taro.navigateTo({
-      url: `/pages/appointment/index?doctorId=${doctor.id}`
+    setSelectedDoctorForAppointment(doctor.id);
+    Taro.switchTab({
+      url: '/pages/appointment/index'
     });
   };
 

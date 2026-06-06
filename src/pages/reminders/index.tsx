@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useApp } from '@/store';
 import { Reminder } from '@/types';
+import { appointmentsData } from '@/data/appointments';
+import { recordsData } from '@/data/records';
 
 const typeOptions = [
   { value: 'medicine', label: '💊 用药提醒' },
@@ -36,6 +38,8 @@ const RemindersPage: React.FC = () => {
   const [formTitle, setFormTitle] = useState('');
   const [formTime, setFormTime] = useState('');
   const [formRepeat, setFormRepeat] = useState('每日1次');
+  const [formRelatedId, setFormRelatedId] = useState('');
+  const [petFilter, setPetFilter] = useState('all');
 
   const getTypeIcon = (type: string) => {
     const map: Record<string, string> = {
@@ -69,6 +73,7 @@ const RemindersPage: React.FC = () => {
     setFormTitle('');
     setFormTime('08:00');
     setFormRepeat('每日1次');
+    setFormRelatedId('');
     setShowForm(true);
   };
 
@@ -89,20 +94,50 @@ const RemindersPage: React.FC = () => {
     const pet = pets.find(p => p.id === formPet);
     if (!pet) return;
 
-    const newReminder: Reminder = {
+    let relatedInfo = '';
+    if (formType === 'recheck' && formRelatedId) {
+      const appt = appointmentsData.find(a => a.id === formRelatedId);
+      const record = recordsData.find(r => r.id === formRelatedId);
+      if (appt) {
+        relatedInfo = `关联预约：${appt.date} ${appt.doctorName}`;
+      } else if (record) {
+        relatedInfo = `关联就诊：${record.date} ${record.doctorName}`;
+      }
+    }
+
+    const newReminder: Reminder & { relatedInfo?: string } = {
       id: Date.now().toString(),
       type: formType as 'medicine' | 'recheck' | 'vaccine',
       title: formTitle.trim(),
       petName: pet.name,
+      petId: pet.id,
       time: formTime,
       repeat: formRepeat,
-      enabled: true
+      enabled: true,
+      relatedInfo
     };
 
     addReminder(newReminder);
     setShowForm(false);
     Taro.showToast({ title: '添加成功', icon: 'success' });
   };
+
+  const filteredReminders = useMemo(() => {
+    if (petFilter === 'all') return reminders;
+    return reminders.filter(r => (r as any).petId === petFilter || r.petName === pets.find(p => p.id === petFilter)?.name);
+  }, [reminders, petFilter, pets]);
+
+  const relatedOptions = useMemo(() => {
+    if (formType !== 'recheck') return [];
+    const options: { value: string; label: string }[] = [];
+    appointmentsData.slice(0, 3).forEach(a => {
+      options.push({ value: a.id, label: `预约：${a.date} ${a.doctorName}` });
+    });
+    recordsData.slice(0, 3).forEach(r => {
+      options.push({ value: r.id, label: `就诊：${r.date} ${r.doctorName}` });
+    });
+    return options;
+  }, [formType]);
 
   return (
     <View className={styles.page}>
@@ -114,10 +149,30 @@ const RemindersPage: React.FC = () => {
           </View>
         </View>
 
+        <View className={styles.filterBar}>
+          <ScrollView scrollX className={styles.filterScroll}>
+            <Text
+              className={`${styles.filterChip} ${petFilter === 'all' ? styles.filterChipActive : ''}`}
+              onClick={() => setPetFilter('all')}
+            >
+              全部
+            </Text>
+            {pets.map(pet => (
+              <Text
+                key={pet.id}
+                className={`${styles.filterChip} ${petFilter === pet.id ? styles.filterChipActive : ''}`}
+                onClick={() => setPetFilter(pet.id)}
+              >
+                {pet.name}
+              </Text>
+            ))}
+          </ScrollView>
+        </View>
+
         <View className={styles.content}>
-          {reminders.length > 0 ? (
-            reminders.map(reminder => (
-              <View key={reminder.id} className={styles.reminderCard}>
+          {filteredReminders.length > 0 ? (
+            filteredReminders.map(reminder => (
+              <View key={reminder.id} className={`${styles.reminderCard} ${!reminder.enabled ? styles.reminderDisabled : ''}`}>
                 <View className={styles.reminderHeader}>
                   <View className={`${styles.typeIcon} ${getTypeClass(reminder.type)}`}>
                     <Text>{getTypeIcon(reminder.type)}</Text>
@@ -125,7 +180,15 @@ const RemindersPage: React.FC = () => {
                   <View className={styles.reminderInfo}>
                     <Text className={styles.reminderTitle}>{reminder.title}</Text>
                     <Text className={styles.reminderPet}>{reminder.petName}</Text>
+                    {(reminder as any).relatedInfo && (
+                      <Text className={styles.reminderRelated}>{(reminder as any).relatedInfo}</Text>
+                    )}
                   </View>
+                  {!reminder.enabled && (
+                    <View className={styles.disabledTag}>
+                      <Text className={styles.disabledTagText}>已停用</Text>
+                    </View>
+                  )}
                 </View>
                 <View className={styles.reminderTime}>
                   <View className={styles.timeInfo}>
@@ -166,7 +229,7 @@ const RemindersPage: React.FC = () => {
                     <Text
                       key={opt.value}
                       className={`${styles.optionItem} ${formType === opt.value ? styles.optionItemActive : ''}`}
-                      onClick={() => setFormType(opt.value)}
+                      onClick={() => { setFormType(opt.value); setFormRelatedId(''); }}
                     >
                       {opt.label}
                     </Text>
@@ -188,6 +251,24 @@ const RemindersPage: React.FC = () => {
                   ))}
                 </View>
               </View>
+
+              {formType === 'recheck' && relatedOptions.length > 0 && (
+                <View className={styles.formItem}>
+                  <Text className={styles.formLabel}>关联记录（可选）</Text>
+                  <View className={styles.optionList}>
+                    {relatedOptions.map(opt => (
+                      <Text
+                        key={opt.value}
+                        className={`${styles.optionRow} ${formRelatedId === opt.value ? styles.optionRowActive : ''}`}
+                        onClick={() => setFormRelatedId(formRelatedId === opt.value ? '' : opt.value)}
+                      >
+                        {opt.label}
+                        {formRelatedId === opt.value && <Text className={styles.optionCheck}>✓</Text>}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
 
               <View className={styles.formItem}>
                 <Text className={styles.formLabel}>

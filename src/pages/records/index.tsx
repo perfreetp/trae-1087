@@ -4,11 +4,7 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { recordsData } from '@/data/records';
 import { MedicalRecord } from '@/types';
-
-interface SavedPrescription {
-  recordId: string;
-  saved: boolean;
-}
+import { useApp } from '@/store';
 
 interface RecordRating {
   recordId: string;
@@ -18,9 +14,10 @@ interface RecordRating {
 }
 
 const RecordsPage: React.FC = () => {
+  const { savedPrescriptions, addSavedPrescription } = useApp();
   const [records] = useState<MedicalRecord[]>(recordsData);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [savedPrescriptions, setSavedPrescriptions] = useState<SavedPrescription[]>([]);
+  const [showSavedPrescriptions, setShowSavedPrescriptions] = useState(false);
   const [ratings, setRatings] = useState<RecordRating[]>([]);
   const [ratingForm, setRatingForm] = useState<{ recordId: string; rating: number; comment: string } | null>(null);
 
@@ -30,20 +27,26 @@ const RecordsPage: React.FC = () => {
 
   const handleSavePrescription = (record: MedicalRecord) => {
     const alreadySaved = savedPrescriptions.find(p => p.recordId === record.id);
-    if (alreadySaved?.saved) {
+    if (alreadySaved) {
       Taro.showToast({ title: '处方已保存过', icon: 'none' });
       return;
     }
 
     Taro.showModal({
       title: '保存处方',
-      content: '确定保存该处方吗？保存后可在个人中心查看。',
+      content: '确定保存该处方吗？保存后可在"已保存处方"列表中查看。',
       success: (res) => {
         if (res.confirm) {
-          setSavedPrescriptions(prev => [
-            ...prev.filter(p => p.recordId !== record.id),
-            { recordId: record.id, saved: true }
-          ]);
+          addSavedPrescription({
+            id: Date.now().toString(),
+            recordId: record.id,
+            petName: record.petName,
+            doctorName: record.doctorName,
+            department: record.department,
+            date: record.date,
+            diagnosis: record.diagnosis,
+            prescriptions: record.prescriptions
+          });
           Taro.showToast({ title: '处方已保存', icon: 'success' });
         }
       }
@@ -51,7 +54,7 @@ const RecordsPage: React.FC = () => {
   };
 
   const isPrescriptionSaved = (recordId: string) => {
-    return savedPrescriptions.find(p => p.recordId === recordId)?.saved || false;
+    return savedPrescriptions.some(p => p.recordId === recordId);
   };
 
   const openRatingForm = (recordId: string) => {
@@ -85,6 +88,55 @@ const RecordsPage: React.FC = () => {
   return (
     <View className={styles.page}>
       <ScrollView scrollY>
+        <View className={styles.header}>
+          <Text className={styles.headerTitle}>就诊记录</Text>
+          <View
+            className={styles.savedPrescriptionBtn}
+            onClick={() => setShowSavedPrescriptions(!showSavedPrescriptions)}
+          >
+            <Text className={styles.savedPrescriptionBtnText}>
+              📋 已保存处方 ({savedPrescriptions.length})
+            </Text>
+          </View>
+        </View>
+
+        {showSavedPrescriptions && (
+          <View className={styles.savedPrescriptionsPanel}>
+            <View className={styles.panelHeader}>
+              <Text className={styles.panelTitle}>已保存处方</Text>
+              <Text className={styles.panelClose} onClick={() => setShowSavedPrescriptions(false)}>收起 ▲</Text>
+            </View>
+            {savedPrescriptions.length > 0 ? (
+              savedPrescriptions.map(saved => (
+                <View key={saved.id} className={styles.savedCard}>
+                  <View className={styles.savedHeader}>
+                    <Text className={styles.savedPet}>{saved.petName}</Text>
+                    <Text className={styles.savedDate}>{saved.date}</Text>
+                  </View>
+                  <Text className={styles.savedDoctor}>{saved.doctorName} · {saved.department}</Text>
+                  <Text className={styles.savedDiagnosis}>诊断：{saved.diagnosis}</Text>
+                  <View className={styles.savedPrescriptionList}>
+                    {saved.prescriptions.map((p: any) => (
+                      <View key={p.id} className={styles.savedPrescriptionItem}>
+                        <Text className={styles.savedPrescriptionName}>{p.name}</Text>
+                        <View className={styles.savedPrescriptionInfo}>
+                          <Text>用量：{p.dosage}</Text>
+                          <Text>频次：{p.frequency}</Text>
+                          <Text>疗程：{p.duration}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))
+            ) : (
+              <View className={styles.emptyPanel}>
+                <Text className={styles.emptyPanelText}>暂无保存的处方</Text>
+              </View>
+            )}
+          </View>
+        )}
+
         <View className={styles.content}>
           {records.length > 0 ? (
             records.map(record => (

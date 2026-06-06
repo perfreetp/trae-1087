@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Input, Textarea } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
@@ -7,9 +7,17 @@ import { departments, timeSlots } from '@/data/doctors';
 import { Appointment } from '@/types';
 import { useApp } from '@/store';
 
+const filterOptions = [
+  { value: 'all', label: '全部' },
+  { value: 'pending', label: '待确认' },
+  { value: 'confirmed', label: '已确认' },
+  { value: 'cancelled', label: '已取消' },
+  { value: 'completed', label: '已完成' },
+];
+
 const AppointmentPage: React.FC = () => {
   const router = useRouter();
-  const { doctors, pets, appointments, addAppointment, setAppointments } = useApp();
+  const { doctors, pets, appointments, addAppointment, setAppointments, selectedDoctorForAppointment, setSelectedDoctorForAppointment } = useApp();
 
   const [activeTab, setActiveTab] = useState(0);
   const [selectedDept, setSelectedDept] = useState('all');
@@ -18,19 +26,37 @@ const AppointmentPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [symptoms, setSymptoms] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchText, setSearchText] = useState('');
+
+  const dateOptions = useMemo(() => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      const label = i === 0 ? '今天' : i === 1 ? '明天' : weekDays[date.getDay()];
+      dates.push({ value: dateStr, label, day: date.getDate() });
+    }
+    return dates;
+  }, []);
 
   useEffect(() => {
     if (pets.length > 0 && !selectedPet) {
       setSelectedPet(pets[0].id);
     }
-    if (router.params.doctorId) {
-      setSelectedDoctor(router.params.doctorId);
+    const doctorToSelect = selectedDoctorForAppointment || router.params.doctorId;
+    if (doctorToSelect) {
+      setSelectedDoctor(doctorToSelect);
       setActiveTab(1);
+      setSelectedDoctorForAppointment(null);
     }
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    setSelectedDate(tomorrow.toISOString().split('T')[0]);
-  }, [pets, router.params.doctorId]);
+    if (dateOptions.length > 0 && !selectedDate) {
+      setSelectedDate(dateOptions[1].value);
+    }
+  }, [pets, selectedDoctorForAppointment, router.params.doctorId, setSelectedDoctorForAppointment, dateOptions]);
 
   const tabs = ['我的预约', '预约挂号'];
 
@@ -50,7 +76,7 @@ const AppointmentPage: React.FC = () => {
       pending: styles.statusPending,
       confirmed: styles.statusConfirmed,
       completed: styles.statusCompleted,
-      cancelled: styles.statusCompleted
+      cancelled: styles.statusCancelled
     };
     return map[status] || '';
   };
@@ -76,6 +102,24 @@ const AppointmentPage: React.FC = () => {
     });
   };
 
+  const isTimeSlotBooked = (timeSlot: string) => {
+    return appointments.some(
+      a => a.doctorId === selectedDoctor &&
+           a.date === selectedDate &&
+           a.timeSlot === timeSlot &&
+           a.status !== 'cancelled'
+    );
+  };
+
+  const hasDuplicateAppointment = () => {
+    return appointments.some(
+      a => a.petId === selectedPet &&
+           a.date === selectedDate &&
+           a.timeSlot === selectedTime &&
+           a.status !== 'cancelled'
+    );
+  };
+
   const filteredDoctors = selectedDept === 'all'
     ? doctors
     : doctors.filter(d => {
@@ -91,6 +135,7 @@ const AppointmentPage: React.FC = () => {
 
   const handleDoctorSelect = (doctorId: string) => {
     setSelectedDoctor(doctorId);
+    setSelectedTime('');
   };
 
   const handleSubmit = () => {
@@ -110,11 +155,17 @@ const AppointmentPage: React.FC = () => {
       Taro.showToast({ title: '请填写症状描述', icon: 'none' });
       return;
     }
+    if (hasDuplicateAppointment()) {
+      Taro.showToast({ title: '该宠物同一时段已有预约', icon: 'none' });
+      return;
+    }
 
     const doctor = doctors.find(d => d.id === selectedDoctor);
     const pet = pets.find(p => p.id === selectedPet);
 
     if (!doctor || !pet) return;
+
+    const queueNumber = Math.floor(Math.random() * 20) + 1;
 
     const newAppt: Appointment = {
       id: Date.now().toString(),
@@ -126,14 +177,14 @@ const AppointmentPage: React.FC = () => {
       date: selectedDate,
       timeSlot: selectedTime,
       status: 'pending',
-      queueNumber: Math.floor(Math.random() * 20) + 1,
+      queueNumber,
       symptoms: symptoms.trim(),
       createdAt: new Date().toLocaleString('zh-CN')
     };
 
     Taro.showModal({
       title: '确认预约',
-      content: `确认预约 ${doctor.name} ${selectedDate} ${selectedTime} 的门诊吗？`,
+      content: `确认预约 ${doctor.name} ${selectedDate} ${selectedTime} 的门诊吗？\n您的排队号：${queueNumber}号`,
       success: (res) => {
         if (res.confirm) {
           addAppointment(newAppt);
@@ -146,9 +197,25 @@ const AppointmentPage: React.FC = () => {
     });
   };
 
-  const sortedAppointments = [...appointments].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sortedAppointments = useMemo(() => {
+    let result = [...appointments];
+
+    if (statusFilter !== 'all') {
+      result = result.filter(a => a.status === statusFilter);
+    }
+
+    if (searchText.trim()) {
+      const keyword = searchText.trim().toLowerCase();
+      result = result.filter(a =>
+        a.petName.toLowerCase().includes(keyword) ||
+        a.doctorName.toLowerCase().includes(keyword)
+      );
+    }
+
+    return result.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }, [appointments, statusFilter, searchText]);
 
   return (
     <View className={styles.page}>
@@ -166,6 +233,29 @@ const AppointmentPage: React.FC = () => {
 
       {activeTab === 0 && (
         <ScrollView scrollY>
+          <View className={styles.filterSection}>
+            <View className={styles.filterTabs}>
+              {filterOptions.map(opt => (
+                <Text
+                  key={opt.value}
+                  className={`${styles.filterTab} ${statusFilter === opt.value ? styles.filterTabActive : ''}`}
+                  onClick={() => setStatusFilter(opt.value)}
+                >
+                  {opt.label}
+                </Text>
+              ))}
+            </View>
+            <View className={styles.searchBox}>
+              <Text className={styles.searchIcon}>🔍</Text>
+              <Input
+                className={styles.searchInput}
+                placeholder="搜索宠物名或医生名"
+                value={searchText}
+                onInput={(e) => setSearchText(e.detail.value)}
+              />
+            </View>
+          </View>
+
           <View className={styles.content}>
             <View className={styles.myAppointments}>
               {sortedAppointments.length > 0 ? (
@@ -191,11 +281,11 @@ const AppointmentPage: React.FC = () => {
                         <Text className={styles.apptInfoText}>{appt.date} {appt.timeSlot}</Text>
                       </View>
                     </View>
-                    {appt.queueNumber && appt.status === 'confirmed' && (
+                    {appt.queueNumber && appt.status !== 'cancelled' && (
                       <View className={styles.queueBox}>
                         <Text className={styles.queueNumber}>{appt.queueNumber}</Text>
                         <View className={styles.queueInfo}>
-                          <Text className={styles.queueLabel}>当前排队号</Text>
+                          <Text className={styles.queueLabel}>排队号</Text>
                           <Text className={styles.queueTip}>请提前15分钟到院签到</Text>
                         </View>
                       </View>
@@ -234,7 +324,7 @@ const AppointmentPage: React.FC = () => {
                 <Text
                   key={dept.id}
                   className={`${styles.departmentItem} ${selectedDept === dept.id ? styles.departmentActive : ''}`}
-                  onClick={() => setSelectedDept(dept.id)}
+                  onClick={() => { setSelectedDept(dept.id); setSelectedDoctor(''); setSelectedTime(''); }}
                 >
                   {dept.name}
                 </Text>
@@ -279,24 +369,41 @@ const AppointmentPage: React.FC = () => {
 
               <View className={styles.formItem}>
                 <Text className={styles.formLabel}>预约日期</Text>
-                <View className={styles.formInput}>
-                  <Text>{selectedDate}</Text>
-                </View>
+                <ScrollView scrollX className={styles.dateScroll}>
+                  {dateOptions.map(date => (
+                    <View
+                      key={date.value}
+                      className={`${styles.dateItem} ${selectedDate === date.value ? styles.dateItemActive : ''}`}
+                      onClick={() => { setSelectedDate(date.value); setSelectedTime(''); }}
+                    >
+                      <Text className={styles.dateLabel}>{date.label}</Text>
+                      <Text className={styles.dateDay}>{date.day}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
 
               <View className={styles.formItem}>
                 <Text className={styles.formLabel}>选择时段</Text>
-                <View className={styles.timeGrid}>
-                  {timeSlots.map((slot, index) => (
-                    <Text
-                      key={slot}
-                      className={`${styles.timeSlot} ${selectedTime === slot ? styles.timeSlotActive : ''} ${index % 5 === 2 ? styles.timeSlotDisabled : ''}`}
-                      onClick={() => index % 5 !== 2 && setSelectedTime(slot)}
-                    >
-                      {slot}
-                    </Text>
-                  ))}
-                </View>
+                {!selectedDoctor ? (
+                  <Text className={styles.tipText}>请先选择医生</Text>
+                ) : (
+                  <View className={styles.timeGrid}>
+                    {timeSlots.map(slot => {
+                      const booked = isTimeSlotBooked(slot);
+                      return (
+                        <Text
+                          key={slot}
+                          className={`${styles.timeSlot} ${selectedTime === slot ? styles.timeSlotActive : ''} ${booked ? styles.timeSlotDisabled : ''}`}
+                          onClick={() => !booked && setSelectedTime(slot)}
+                        >
+                          {slot}
+                          {booked && <Text className={styles.timeSlotTag}>已约满</Text>}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
 
               <View className={styles.formItem}>
